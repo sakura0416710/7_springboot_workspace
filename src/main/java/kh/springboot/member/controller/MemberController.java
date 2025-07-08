@@ -1,22 +1,30 @@
 package kh.springboot.member.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import kh.springboot.HomeController;
+import jakarta.servlet.http.HttpSession;
+import kh.springboot.member.model.exception.MemberException;
+import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
+import lombok.RequiredArgsConstructor;
 
-@Controller
+@Controller 
+@RequiredArgsConstructor //final이 붙은 상수나 @NonNull이 붙은 변수만 가지고 생성자 생성
 public class MemberController {
 
-    private final HomeController homeController;
-
-    MemberController(HomeController homeController) {
-        this.homeController = homeController;
-    }
+	//@service불러오기 (프레임워크가 만든 객체를 '주입')
+	//1. 필드 주입
+//	@Autowired
+//	private MemberService mService;
 	
-	@GetMapping("/member/signIn")
+	//2.생성자 주입(값을 넣어야 final로 고정시키는데 null을 넣을 순 없으니 @RequiredArgsConstructor 추가
+	//lombok으로 생성
+	private final MemberService mService;
+	
+	
+ 
+    @GetMapping("/member/signIn")
 	public String signIn() {
 		return "views/member/login";
 	}
@@ -52,24 +60,37 @@ public class MemberController {
 	
 	
 	4. @ModelAttribute 이용 : 필드명(getter,setter명)과 내가보내는 파라미터 명이 같으면 알아서 맵핑이 된다.									*/
-	@PostMapping("member/signIn")
-	public void login(@ModelAttribute Member m) {
-		System.out.println("id4 : " + m.getId());
-		System.out.println("pwd4 : " + m.getPwd());
-		
-	}
-	
-//	5. @ModelAttribute를 생략
 //	@PostMapping("member/signIn")
-//	public void login(Member m){
+//	public void login(@ModelAttribute Member m) {
 //		System.out.println("id4 : " + m.getId());
 //		System.out.println("pwd4 : " + m.getPwd());
+//		
 //	}
 	
+//	5. @ModelAttribute를 생략
+	@PostMapping("member/signIn")
+	public String login(Member m, HttpSession session){
+		
+	//	System.out.println(mService); //mService의 주소값이 새로고침할때마다 바뀜(=결합도가 높다). 결합도가 낮게, 분리시키는 것이 관건.
+		Member loginUser = mService.login(m);
+		if(loginUser != null ) {
+			session.setAttribute("loginUser", loginUser);
+			return "redirect:/home"; //view/home은 forward 방식. sendRedirect로 url을 home으로 재요청.
+			//어차피 데이터를 session에 담아서 redirect해도 됨(request에 담았으면 redirect시 데이터 사라짐)
+		} else {
+			//사용자정의 에러 가능 ->throw: 에러 강제발생->사용자정의 에러이므로 클래스 만들어주기
+			//안잡아도 되는 uncheckedError(최상위 클래스인 RuntimeException을 상속받는 걸로 바꿔주기
+			throw new MemberException("로그인을 실패하였습니다.");
+		}
+	}
 	
-	
-	
-	
+	//로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
+	@GetMapping("/member/logout")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:/home";
+	}
+
 	
 	
 	
