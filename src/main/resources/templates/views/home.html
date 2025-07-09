@@ -20,7 +20,7 @@
 					<button th:if="${session.loginUser==null}" class="btn btn-primary btn-lg" type="button" onclick="location.href='/member/signIn'">SIGN IN</button>
 					<p class="col-md-8 fs-4 fw-bold" th:if="${session.loginUser != null}">
 						[[${session.loginUser.nickName}]]님, 환영합니다.
-						<button class="btn btn-success btn-lg" type="button" onclick="location.href='/member/myInfo/signIn'">MY PAGE</button>
+						<button class="btn btn-success btn-lg" type="button" onclick="location.href='/member/myInfo'">MY PAGE</button>
 						<button class="btn btn-dark btn-lg" type="button" onclick="location.href='/member/logout'">LOGOUT</button>
 					</p>
 				</div>

@@ -1,9 +1,20 @@
 package kh.springboot.member.controller;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
+import kh.springboot.HomeController;
 import kh.springboot.member.model.exception.MemberException;
 import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
@@ -11,7 +22,10 @@ import lombok.RequiredArgsConstructor;
 
 @Controller 
 @RequiredArgsConstructor //final이 붙은 상수나 @NonNull이 붙은 변수만 가지고 생성자 생성
+//@SessionAttributes("loginUser")
 public class MemberController {
+
+    private final HomeController homeController;
 
 	//@service불러오기 (프레임워크가 만든 객체를 '주입')
 	//1. 필드 주입
@@ -22,23 +36,24 @@ public class MemberController {
 	//lombok으로 생성
 	private final MemberService mService;
 	
-	
+	//암호화 설정파일 주입받아오기 (생성자 주입)
+	private final BCryptPasswordEncoder bcrypt;
+
  
     @GetMapping("/member/signIn")
 	public String signIn() {
 		return "views/member/login";
 	}
 	
-	//파라미터 전송받는 방법
-	//1. HttpServletRequest 이용하기(servlet방식)
-//	@PostMapping("member/signIn")
-//	public void login(HttpServletRequest request) {
-//		String id = request.getParameter("id");
-//		String pwd = request.getParameter("pwd");
-//		System.out.println("id1 : " + id);
-//		System.out.println("pwd1 : " + pwd);
-//		
-//	}
+/*    파라미터 전송받는 방법
+	1. HttpServletRequest 이용하기(servlet방식)
+	@PostMapping("member/signIn")
+	public void login(HttpServletRequest request) {
+		String id = request.getParameter("id");
+		String pwd = request.getParameter("pwd");
+		System.out.println("id1 : " + id);
+		System.out.println("pwd1 : " + pwd);
+	}		*/
 	
 	/*2.@RequestParam 이용하기
 	value : view에서 받아오는 파라미터의 이름(@RequestParam에 들어갈 속성이 value하나 뿐이라면 생략 가능)
@@ -59,16 +74,16 @@ public class MemberController {
 	public void login(String id, String pwd){이렇게 가능. 근데 인텔리제이에서만 되는 기능임..sts에선 막아둠 ㅎ}
 	
 	
-	4. @ModelAttribute 이용 : 필드명(getter,setter명)과 내가보내는 파라미터 명이 같으면 알아서 맵핑이 된다.									*/
-//	@PostMapping("member/signIn")
-//	public void login(@ModelAttribute Member m) {
-//		System.out.println("id4 : " + m.getId());
-//		System.out.println("pwd4 : " + m.getPwd());
-//		
-//	}
-	
-//	5. @ModelAttribute를 생략
+	4. @ModelAttribute 이용 : 필드명(getter,setter명)과 내가보내는 파라미터 명이 같으면 알아서 맵핑이 된다.									
 	@PostMapping("member/signIn")
+	public void login(@ModelAttribute Member m) {
+		System.out.println("id4 : " + m.getId());
+		System.out.println("pwd4 : " + m.getPwd());
+		
+	}			
+	
+	5. @ModelAttribute를 생략
+	@PostMapping("member/signIn") --->처음 로그인 버전(암호화 전)
 	public String login(Member m, HttpSession session){
 		
 	//	System.out.println(mService); //mService의 주소값이 새로고침할때마다 바뀜(=결합도가 높다). 결합도가 낮게, 분리시키는 것이 관건.
@@ -82,21 +97,107 @@ public class MemberController {
 			//안잡아도 되는 uncheckedError(최상위 클래스인 RuntimeException을 상속받는 걸로 바꿔주기
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
-	}
+	}												*/
 	
-	//로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
+//	로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
 	@GetMapping("/member/logout")
 	public String logout(HttpSession session) {
 		session.invalidate();
 		return "redirect:/home";
-	}
+	}															
 
 	
 	
+	//회원 등록(뷰 보여주기 viewResolver->view)
+	@GetMapping("/member/enroll")
+	public String insertMember() {
+		return ("views/member/enroll");
+	}
+	// 값 받아오기
+	@PostMapping("/member/enroll")
+	public String insertMember(@ModelAttribute Member m,
+								@RequestParam("emailId") String emailId,
+								@RequestParam ("emailDomain")String emailDomain) {
+		if (!emailId.trim().equals("")) {
+			m.setEmail(emailId + "@" + emailDomain);
+		}
+		String encPwd = bcrypt.encode(m.getPwd());
+		m.setPwd(encPwd);
+	
+		//회원가입 성공, 실패 경로
+		int result = mService.insertMember(m);
+		
+		if(result > 0) {
+			return "redirect:/home";
+		}else {
+			throw new MemberException("회원가입을 실패하였습니다.");
+		}
+		
+		
+	}
+//	암호화 후 로그인
+	@PostMapping("member/signIn")
+	public String login(Member m, HttpSession session){
+		Member loginUser = mService.login(m);
+		//로그인 유저가 있다면 (아이디 존재여부로 비교) 그 로그인 유저의 비번을 꺼내오겠다. (그게 db에 암호화돼서 있을거니까 그걸 꺼내오면 댐)
+		if(loginUser != null && bcrypt.matches(m.getPwd(),loginUser.getPwd())) {
+			session.setAttribute("loginUser", loginUser);//인자 두개 : rawPassword, encodedPassword
+			return "redirect:/home";
+		} else {
+			throw new MemberException("로그인을 실패하였습니다.");
+		}
+	} 			
+	
+	//마이페이지 이동 : list를 담아서 view에 보내는 방법 2가지
+	//1.Model객체 이용 : request영역에 담기는 Map형식(key-value)의 객체
+//	@GetMapping("/member/myInfo")
+//	public String myInfo(HttpSession session, Model model) {
+//		Member loginUser = (Member)session.getAttribute("loginUser");
+//		if(loginUser != null) {
+//			String id = loginUser.getId();
+//			//아이디 전달 (arrayList<map>형식으로 db에서 쿼리적은 걸 담아서 보낼것
+//			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
+//			model.addAttribute("list", list);
+//		}
+//		return "views/member/myInfo";
+//	}
+	
+	//2.ModelAndView객체 이용하기: Model + View
+	//model에 데이터를 저장하고 view에 forward할 뷰 정보를담음.
+	@GetMapping("/member/myInfo")
+	public ModelAndView myInfo(HttpSession session, ModelAndView mv) {
+		Member loginUser = (Member)session.getAttribute("loginUser");
+		if(loginUser != null) {
+			String id = loginUser.getId();
+			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
+			mv.addObject("list", list);
+			mv.setViewName("views/member/myInfo");
+		}
+		return mv;
+	}
 	
 	
+/*	 	암호화 후 로그인 + @SessionAttribute : 스프링부트가 제공하는 기능
+		model에 attribute가 추가될 때 자동으로 키 값을 찾아서 일치하는 키가 있으면 세션에 등록하는 기능
+		세션 영역에 저장은 하지만 로그아웃할 때 session.invalidate으로 무효화가 안돼서 로그아웃이 안됨.
+		이거에 맞는 로그아웃을 만들어야 함.
+	@PostMapping("member/signIn")
+	public String login(Member m, Model model){
+		Member loginUser = mService.login(m);
+		if(loginUser != null && bcrypt.matches(m.getPwd(),loginUser.getPwd())) {
+			model.addAttribute("loginUser", loginUser);
+			return "redirect:/home";
+		} else {
+			throw new MemberException("로그인을 실패하였습니다.");
+		}
+	} 			
 	
-	
+	로그아웃 session.Attribute버전 		
+	@GetMapping("/member/logout")
+	public String logout(SessionStatus status) {
+		status.setComplete();
+		return "redirect:/home";
+	}	*/
 	
 	
 	
