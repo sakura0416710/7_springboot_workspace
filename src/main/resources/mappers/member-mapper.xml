@@ -34,4 +34,29 @@
 		order by bid_btype desc
 		]]>
 	</select>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateMember">
+		update member 
+		set name = #{name}, ninkName =#{nickName}, email=#{email}, gender=#{gender}, age=#{age},phone=#{phone},
+		address=#{address}, update_date=sysdate
+		where id=#{id}
+	
+	</update>
+	
+	<!-- 비밀번호 수정 -->
+	<update id="updatePassword">
+		update member set pwd = #{pwd} where = id = #{id}
+	</update>
+	
+	<!-- 회원 탈퇴 -->
+	<update id="deleteMember">
+		update member 
+		set member_status = 'N' 
+		where id = #{id}
+	</update>
+	
+	
+	
+	
 </mapper>

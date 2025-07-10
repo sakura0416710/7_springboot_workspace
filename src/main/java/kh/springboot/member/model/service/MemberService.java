@@ -29,4 +29,18 @@ public class MemberService {
 		return mapper.selectMyList(id);
 	}
 	
+	//4.회원정보 수정
+	public int updateMember(Member m) {
+		return mapper.updateMember(m);
+	}
+
+	
+	//5.비밀번호 수정
+	public int updatePassword(Member m) {
+		return mapper.updatePassword(m);
+	}
+	//6. 회원탈퇴 
+	public int deleteMember(String id) {
+		return mapper.deleteMember(id);
+	}
 }

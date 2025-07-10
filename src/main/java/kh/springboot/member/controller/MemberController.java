@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
@@ -22,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 
 @Controller 
 @RequiredArgsConstructor //final이 붙은 상수나 @NonNull이 붙은 변수만 가지고 생성자 생성
-//@SessionAttributes("loginUser")
+@SessionAttributes("loginUser")
+@RequestMapping("/Member/") //공용 url
 public class MemberController {
 
     private final HomeController homeController;
@@ -39,13 +41,14 @@ public class MemberController {
 	//암호화 설정파일 주입받아오기 (생성자 주입)
 	private final BCryptPasswordEncoder bcrypt;
 
- 
-    @GetMapping("/member/signIn")
+
+	/* 
+    @GetMapping("/signIn") //그냥 signIn이 맞을것 같지만 '/' 붙여도 됨.
 	public String signIn() {
-		return "views/member/login";
+		return "login";
 	}
 	
-/*    파라미터 전송받는 방법
+    파라미터 전송받는 방법
 	1. HttpServletRequest 이용하기(servlet방식)
 	@PostMapping("member/signIn")
 	public void login(HttpServletRequest request) {
@@ -100,7 +103,7 @@ public class MemberController {
 	}												*/
 	
 //	로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
-	@GetMapping("/member/logout")
+	@GetMapping("logout")
 	public String logout(HttpSession session) {
 		session.invalidate();
 		return "redirect:/home";
@@ -109,12 +112,12 @@ public class MemberController {
 	
 	
 	//회원 등록(뷰 보여주기 viewResolver->view)
-	@GetMapping("/member/enroll")
+	@GetMapping("enroll")
 	public String insertMember() {
-		return ("views/member/enroll");
+		return ("enroll");
 	}
 	// 값 받아오기
-	@PostMapping("/member/enroll")
+	@PostMapping("enroll")
 	public String insertMember(@ModelAttribute Member m,
 								@RequestParam("emailId") String emailId,
 								@RequestParam ("emailDomain")String emailDomain) {
@@ -135,8 +138,8 @@ public class MemberController {
 		
 		
 	}
-//	암호화 후 로그인
-	@PostMapping("member/signIn")
+/*	암호화 후 로그인
+	@PostMapping("/signIn")
 	public String login(Member m, HttpSession session){
 		Member loginUser = mService.login(m);
 		//로그인 유저가 있다면 (아이디 존재여부로 비교) 그 로그인 유저의 비번을 꺼내오겠다. (그게 db에 암호화돼서 있을거니까 그걸 꺼내오면 댐)
@@ -146,7 +149,7 @@ public class MemberController {
 		} else {
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
-	} 			
+	} 			 */
 	
 	//마이페이지 이동 : list를 담아서 view에 보내는 방법 2가지
 	//1.Model객체 이용 : request영역에 담기는 Map형식(key-value)의 객체
@@ -164,14 +167,14 @@ public class MemberController {
 	
 	//2.ModelAndView객체 이용하기: Model + View
 	//model에 데이터를 저장하고 view에 forward할 뷰 정보를담음.
-	@GetMapping("/member/myInfo")
+	@GetMapping("myInfo")
 	public ModelAndView myInfo(HttpSession session, ModelAndView mv) {
 		Member loginUser = (Member)session.getAttribute("loginUser");
 		if(loginUser != null) {
 			String id = loginUser.getId();
 			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
 			mv.addObject("list", list);
-			mv.setViewName("views/member/myInfo");
+			mv.setViewName("myInfo");
 		}
 		return mv;
 	}
@@ -180,8 +183,8 @@ public class MemberController {
 /*	 	암호화 후 로그인 + @SessionAttribute : 스프링부트가 제공하는 기능
 		model에 attribute가 추가될 때 자동으로 키 값을 찾아서 일치하는 키가 있으면 세션에 등록하는 기능
 		세션 영역에 저장은 하지만 로그아웃할 때 session.invalidate으로 무효화가 안돼서 로그아웃이 안됨.
-		이거에 맞는 로그아웃을 만들어야 함.
-	@PostMapping("member/signIn")
+		이거에 맞는 로그아웃을 만들어야 함. */
+	@PostMapping("signIn")
 	public String login(Member m, Model model){
 		Member loginUser = mService.login(m);
 		if(loginUser != null && bcrypt.matches(m.getPwd(),loginUser.getPwd())) {
@@ -192,12 +195,75 @@ public class MemberController {
 		}
 	} 			
 	
-	로그아웃 session.Attribute버전 		
-	@GetMapping("/member/logout")
+//	로그아웃 session.Attribute버전 		
+	@GetMapping("logout")
 	public String logout(SessionStatus status) {
 		status.setComplete();
 		return "redirect:/home";
-	}	*/
+	}	
+	
+	@GetMapping("/edit")
+	public String edit() {
+		return "edit";
+	}
+	
+	@PostMapping("edit")
+	public String edit (@ModelAttribute Member m, @RequestParam("emailId") String emailId,
+						@RequestParam("emailDomain")String emailDomain, Model model) {
+		if(!emailId.trim().equals("")) {
+			m.setEmail(emailId + "@" + emailDomain);
+		}
+		int result = mService.updateMember(m);
+		if(result > 0) {
+			model.addAttribute("loginUser", mService.login(m));
+			return "reirect:/member/myInfo";
+		} else {
+			throw new MemberException ("회원정보 수정을 실패했습니다.");
+		}
+	}
+	
+	@PostMapping("updatePassword")
+	public String updatePassword(@RequestParam("currentPwd")String pwd, 
+								 @RequestParam("newPwd") String newPwd,
+								  Model model) {
+		//Member m = (Member)session.getAttribute("loignUser");
+		Member m = (Member)model.getAttribute("loginUser"); //세션말고 모델안의 SessionAttribute로 데이터 조회가능
+		//지금 친 비번이랑 암호화된 비번이랑 같은 지 (현재비번 비교)
+		if(bcrypt.matches(pwd, m.getPwd())) {
+			//현재 비번이 일치한다면 새로 친 비번을 암호화하고 암호화된 새 비번을 여기다 담아. 
+			m.setPwd( bcrypt.encode(newPwd)); 
+			int result = mService.updatePassword(m);
+			if(result > 0) {
+				model.addAttribute("loginUser", m);
+				return "redirect:/home";
+			}else {
+				throw new MemberException("비밀번호 수정을 실패하였습니다.");
+			}
+			
+		}else {
+			throw new MemberException("비밀번호 수정을 실패하였습니다.");
+		}
+		
+	}
+	//회원 탈퇴 : delete가 아니라 update status를 'N'으로 해야함
+	
+	@GetMapping("delete")
+	public String deleteMember(Model model) {
+		int result = mService.deleteMember(((Member)model.getAttribute("loginUser")).getId());
+		
+		if(result > 0 ) {
+			return "redirect:/home";
+			
+		}
+		return "redirect:/home";
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
