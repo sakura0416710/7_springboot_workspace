@@ -202,6 +202,7 @@ public class MemberController {
 		return "redirect:/home";
 	}	
 	
+	//내정보 수정
 	@GetMapping("/edit")
 	public String edit() {
 		return "edit";
