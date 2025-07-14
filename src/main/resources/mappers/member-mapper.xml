@@ -1,62 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 
 <!-- 클래스명 자체가 namespace, 메소드명이 id가 되는 것. -->
 <mapper namespace="kh.springboot.member.model.mapper.MemberMapper">
-	<select id="login" resultType="Member">
-		select * from member where id = #{id} and member_status = 'Y'
-	</select> 
-	
-	<insert id ="insertMember">
-		insert into member 
-		values (#{id}, #{pwd},#{name},#{nickName},
-				#{email}, #{gender}, #{age},#{phone},
-				#{address}, default, default,
-				default, default)
-	</insert>
-	
-	<select id="selectMyList" resultType="map">
-	<![CDATA[
-		select bid_btype,board_title,create_date,bc_rc
-		from (select board_id as bid_btype, board_title, board_create_date as create_date, to_char(board_count) as bc_rc
-		      from board
-		      where board_writer = #{id} and board_status = 'Y'
-		   	  order by board_id desc)
-		where rownum <= 5
-		union
-		select *
-		from (select board_type-3, board_title, reply_create_date, reply_content
-		    	from reply
-		    		join board on (board_id = ref_board_id)
-		   	 where reply_writer = #{id} and reply_status = 'Y'
-		   	 order by reply_id desc)
-		where rownum <= 5
-		order by bid_btype desc
-		]]>
-	</select>
-	
-	<!-- 회원정보 수정 -->
-	<update id="updateMember">
-		update member 
-		set name = #{name}, ninkName =#{nickName}, email=#{email}, gender=#{gender}, age=#{age},phone=#{phone},
-		address=#{address}, update_date=sysdate
-		where id=#{id}
-	
-	</update>
-	
-	<!-- 비밀번호 수정 -->
-	<update id="updatePassword">
-		update member set pwd = #{pwd} where = id = #{id}
-	</update>
-	
-	<!-- 회원 탈퇴 -->
-	<update id="deleteMember">
-		update member 
-		set member_status = 'N' 
-		where id = #{id}
-	</update>
-	
-	
-	
-	
+   <select id="login" resultType="Member">
+      select * from member where id = #{id} and member_status = 'Y'
+   </select> 
+   
+   <insert id ="insertMember">
+      insert into member 
+      values (#{id}, #{pwd},#{name},#{nickName},
+            #{email}, #{gender}, #{age},#{phone},
+            #{address}, default, default,
+            default, default)
+   </insert>
+   
+   <select id="selectMyList" resultType="map">
+   <![CDATA[
+      select bid_btype,board_title,cdate,bc_rc
+      from (select board_id as bid_btype, board_title, board_create_date as cdate, to_char(board_count) as bc_rc
+            from board
+            where board_writer = #{id} and board_status = 'Y'
+              order by board_id desc)
+      where rownum <= 5
+      union
+      select *
+      from (select board_type-3, board_title, reply_create_date, reply_content
+             from reply
+                join board on (board_id = ref_board_id)
+             where reply_writer = #{id} and reply_status = 'Y'
+             order by reply_id desc)
+      where rownum <= 5
+      order by bid_btype desc
+      ]]>
+   </select>
+   
+   <!-- 회원정보 수정 -->
+   <update id="updateMember">
+      update member 
+      set name = #{name}, nickName =#{nickName}, email=#{email}, gender=#{gender}, age=#{age},phone=#{phone},
+      address=#{address}, update_date=sysdate
+      where id=#{id}
+   
+   </update>
+   
+   <!-- 비밀번호 수정 -->
+   <update id="updatePassword">
+      update member set pwd = #{pwd} where = id = #{id}
+   </update>
+   
+   <!-- 회원 탈퇴 -->
+   <update id="deleteMember">
+      update member 
+      set member_status = 'N' 
+      where id = #{id}
+   </update>
+   
+   
+   
+   
 </mapper>

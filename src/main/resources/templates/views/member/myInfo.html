@@ -80,13 +80,11 @@
 								<th>Date</th>
 								<th>Views</th>
 							</tr>  <!-- 반복문 해쉬맵형태의 list를 상대로 반복문을 돌려서 변수 b에 담겠다. -->
-							<tr th:each="b : value ${list}">
-								<th:block th:if="${b.BID_BTYPE > 0">
-									<td>[[${b.BID_BTYPE]]</td>
+							<tr th:each="b : ${list}" th:if="${b.BID_BTYPE > 0}">
+									<td>[[${b.BID_BTYPE}]]</td>
 									<td th:text="${b.BOARD_TITLE}"></td>
-									<td>[[${#strings.arraySplit(b.CDATE, ' ')[0]}]]</td>
+									<td th:text="${#strings.arraySplit(b.CDATE, ' ')[0]}"></td>
 									<td th:text="${b.BC_RC}"></td>
-								</th:block>
 							</tr>
 						</table>
 					</div>
@@ -104,7 +102,7 @@
 							<tr th:each="r : ${list}" th:if="${r.BID_BTYPE < 0}">
 								<td>[[${r.BID_BTYPE == -2? 'Board' : 'Attachment'}]]</td>
 								<td th:text="${r.BOARD_TITLE}"></td>
-								<td>[[${r.BC_RC]]</td>
+								<td>[[${r.BC_RC}]]</td>
 								<td th:text="${#strings.listSplit(r.CDATE, ' ')[0]}"></td>
 							</tr>
 							

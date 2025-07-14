@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kh.springboot.board.model.mapper.BoardMapper">
+  <!-- 게시글 전체 조회 -->
+  <select id="getListCount" resultType="_int">
+  	select count(*) from board
+  	where board_type=#{i} and board_status='Y'
+  </select>
+  
+  
+  <select id="selectBoardList" resultType="Board">
+  select *
+  from board
+  		join member on(board_writer=id)
+  where board_status = 'Y' and board_type=#{i}
+  order by board_id desc
+  </select>
+  
+  <!-- 게시글 작성 -->
+  <insert id="insertBoard">
+  	insert into board 
+  	values(seq_bid.nextVal, #{boardTitle},#{boardWriter},
+  	#{boardContent},default, sysdate, sysdate, default, #{boardType})	
+  </insert>
+  
+  <!-- 게시글 상세조회 -->
+  <select id="selectBoard" resultType="Board">
+  select * from board 
+  join member on(board_writer=id)
+  where board_status='Y'and board_id=#{bId}
+  </select>
+  
+  
+  <!-- 조회수 증가 -->
+  <update id="updateCount" parameterType="_int">
+  update board set board_count = board_count + 1
+  where board_id = #{bId}
+  </update>
+  
+  
+  <!-- 게시글 수정 -->
+  <update id="updateBoard">
+  	update board set board_title = #{boardTitle}, board_content=#{boardContent},
+  	board_modify_date = sysdate
+  	where board_id = #{boardId}
+  </update>
+  
+  <!-- 게시글 삭제 -->
+  <update id="deleteBoard">
+  	update board set board_status='N' where board_id = #{bId}
+  	
+  </update>
+  
+  </mapper>

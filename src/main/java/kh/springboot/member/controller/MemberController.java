@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Controller 
 @RequiredArgsConstructor //final이 붙은 상수나 @NonNull이 붙은 변수만 가지고 생성자 생성
 @SessionAttributes("loginUser")
-@RequestMapping("/Member/") //공용 url
+@RequestMapping("/member/") //공용 url
 public class MemberController {
 
     private final HomeController homeController;
@@ -42,13 +42,13 @@ public class MemberController {
 	private final BCryptPasswordEncoder bcrypt;
 
 
-	/* 
+	
     @GetMapping("/signIn") //그냥 signIn이 맞을것 같지만 '/' 붙여도 됨.
 	public String signIn() {
 		return "login";
 	}
 	
-    파라미터 전송받는 방법
+/*    파라미터 전송받는 방법
 	1. HttpServletRequest 이용하기(servlet방식)
 	@PostMapping("member/signIn")
 	public void login(HttpServletRequest request) {
@@ -102,15 +102,6 @@ public class MemberController {
 		}
 	}												*/
 	
-//	로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
-	@GetMapping("logout")
-	public String logout(HttpSession session) {
-		session.invalidate();
-		return "redirect:/home";
-	}															
-
-	
-	
 	//회원 등록(뷰 보여주기 viewResolver->view)
 	@GetMapping("enroll")
 	public String insertMember() {
@@ -138,7 +129,7 @@ public class MemberController {
 		
 		
 	}
-/*	암호화 후 로그인
+//	암호화 후 로그인
 	@PostMapping("/signIn")
 	public String login(Member m, HttpSession session){
 		Member loginUser = mService.login(m);
@@ -149,21 +140,28 @@ public class MemberController {
 		} else {
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
-	} 			 */
+	} 		
+	
+//	로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
+	@GetMapping("logout")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:/home";
+	}
 	
 	//마이페이지 이동 : list를 담아서 view에 보내는 방법 2가지
-	//1.Model객체 이용 : request영역에 담기는 Map형식(key-value)의 객체
-//	@GetMapping("/member/myInfo")
-//	public String myInfo(HttpSession session, Model model) {
-//		Member loginUser = (Member)session.getAttribute("loginUser");
-//		if(loginUser != null) {
-//			String id = loginUser.getId();
-//			//아이디 전달 (arrayList<map>형식으로 db에서 쿼리적은 걸 담아서 보낼것
-//			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
-//			model.addAttribute("list", list);
-//		}
-//		return "views/member/myInfo";
-//	}
+/*	1.Model객체 이용 : request영역에 담기는 Map형식(key-value)의 객체
+	@GetMapping("/member/myInfo")
+	public String myInfo(HttpSession session, Model model) {
+		Member loginUser = (Member)session.getAttribute("loginUser");
+		if(loginUser != null) {
+			String id = loginUser.getId();
+			//아이디 전달 (arrayList<map>형식으로 db에서 쿼리적은 걸 담아서 보낼것
+			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
+			model.addAttribute("list", list);
+		}
+		return "views/member/myInfo";
+	}*/
 	
 	//2.ModelAndView객체 이용하기: Model + View
 	//model에 데이터를 저장하고 view에 forward할 뷰 정보를담음.
@@ -180,10 +178,10 @@ public class MemberController {
 	}
 	
 	
-/*	 	암호화 후 로그인 + @SessionAttribute : 스프링부트가 제공하는 기능
-		model에 attribute가 추가될 때 자동으로 키 값을 찾아서 일치하는 키가 있으면 세션에 등록하는 기능
-		세션 영역에 저장은 하지만 로그아웃할 때 session.invalidate으로 무효화가 안돼서 로그아웃이 안됨.
-		이거에 맞는 로그아웃을 만들어야 함. */
+/*	 암호화 후 로그인 + @SessionAttribute : 스프링부트가 제공하는 기능
+	model에 attribute가 추가될 때 자동으로 키 값을 찾아서 일치하는 키가 있으면 세션에 등록하는 기능
+	세션 영역에 저장은 하지만 로그아웃할 때 session.invalidate으로 무효화가 안돼서 로그아웃이 안됨.
+	이거에 맞는 로그아웃을 만들어야 함.
 	@PostMapping("signIn")
 	public String login(Member m, Model model){
 		Member loginUser = mService.login(m);
@@ -193,14 +191,15 @@ public class MemberController {
 		} else {
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
-	} 			
+	} 	*/		
 	
-//	로그아웃 session.Attribute버전 		
+/*	로그아웃 session.Attribute버전 		
 	@GetMapping("logout")
 	public String logout(SessionStatus status) {
 		status.setComplete();
 		return "redirect:/home";
 	}	
+	*/
 	
 	//내정보 수정
 	@GetMapping("/edit")

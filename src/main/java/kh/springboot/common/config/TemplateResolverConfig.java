@@ -14,8 +14,8 @@ public class TemplateResolverConfig {
 		//application properties안에 있는 설정 (prefix)를 자바 코드로 바꾸기
 		//member까지 포함된 viewResolver를 하나더 만든 것.
 		//어플리케이션 properties에 잇는 VR에선 template/까지 잇는 거 (기본)도 존재 !
-		//기본설정으로 먼저 찾고 없으면 이 경로로 찾음. 필요할 때마다 쓰려고 ㅇㅇ
-		mResolver.setPrefix("template/views/member/"); //여기선 /추가해야 controller에서 앞에 /안붙일 수있음.
+		//기본설정으로 먼저 찾고 없으면 이 경로로 찾음. 필요할 때마다 쓰려고.
+		mResolver.setPrefix("templates/views/member/"); //여기선 /추가해야 controller에서 앞에 /안붙일 수있음.
 		mResolver.setSuffix(".html");
 		mResolver.setTemplateMode(TemplateMode.HTML);
 		mResolver.setCharacterEncoding("UTF-8");
@@ -24,6 +24,18 @@ public class TemplateResolverConfig {
 		return mResolver;
 	}
 
+	@Bean 
+	public ClassLoaderTemplateResolver boardResolver() {
+		ClassLoaderTemplateResolver bResolver = new ClassLoaderTemplateResolver();
+		
+		bResolver.setPrefix("templates/views/board/"); 
+		bResolver.setSuffix(".html");
+		bResolver.setTemplateMode(TemplateMode.HTML);
+		bResolver.setCharacterEncoding("UTF-8");
+		bResolver.setCacheable(false); 
+		bResolver.setCheckExistence(true); 
+		return bResolver;
+	}
 
 	
 	
