@@ -11,6 +11,7 @@
   
   
   <select id="selectBoardList" resultType="Board">
+  
   select *
   from board
   		join member on(board_writer=id)
@@ -20,9 +21,22 @@
   
   <!-- 게시글 작성 -->
   <insert id="insertBoard">
+  <!-- selectKey적용 전 쿼리 : 
   	insert into board 
-  	values(seq_bid.nextVal, #{boardTitle},#{boardWriter},
-  	#{boardContent},default, sysdate, sysdate, default, #{boardType})	
+  	values(seq_bid.nextval, #{boardTitle},#{boardWriter},
+  	#{boardContent},default, sysdate, sysdate, default, #{boardType})
+   -->
+  <!-- selectKey 적용:insert/update시 사용할 값(시퀀스)를 조회해서 객체의 지정된 필드에 대입
+  		1)order		  :sql문이 실행되기 전/후에 selectKey가 수행되도록 지정(쿼리문 실행 전.후에 필드에 값을 적용할지를 결정)
+  		2)keyProperty :내가 대입할 필드명 (selectKey조회결과를 저장할 필드)
+   -->
+   <selectKey order="BEFORE" keyProperty="boardId" resultType="_int">
+   		select seq_bid.nextval from dual
+   </selectKey>
+   insert into board 
+  	values(#{boardId}, #{boardTitle},#{boardWriter},
+  	#{boardContent},default, sysdate, sysdate, default, #{boardType})
+  		
   </insert>
   
   <!-- 게시글 상세조회 -->
@@ -50,7 +64,35 @@
   <!-- 게시글 삭제 -->
   <update id="deleteBoard">
   	update board set board_status='N' where board_id = #{bId}
-  	
   </update>
+  
+  
+  <!-- 첨부파일 게시글 전체 조회(썸네일 있는 조건으로) -->
+  <select id="selectAttmBoardList" resultType="Attachment">
+  	select *
+  	from attachment
+  	where attm_status = 'Y' and attm_level=0
+  </select>
+  
+  <!-- 첨부파일 게시글 등록(첨부파일 존재하는 ver)list 안의 attachment가 들어가있으니까
+  반복문foreach + insertAll으로 꺼내서 DB에 반복 요청을 해야한다. 
+  **insertAll에서 seq로 자동 번호 발생을 해도 하나의 insertAll안에 있으면 새로운 숫자가 나타나지 않음..
+  그래서 무결성 제약조건에 위배됨-->
+  <insert id="insertAttm">
+  	insert all
+  	<foreach collection="list" item="item" separator=" ">
+	  	into attachment 
+	  	values (new_aid, #{item.refBoardId}, #{item.originalName},#{item.renameName}, #{item.attmPath}, #{item.attmLevel}, default)
+	</foreach>
+	select * from dual
+  </insert>
+  
+  
+  
+  
+  
+  
+  
+  
   
   </mapper>

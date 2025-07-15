@@ -6,6 +6,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Service;
 
 import kh.springboot.board.model.mapper.BoardMapper;
+import kh.springboot.board.model.vo.Attachment;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.PageInfo;
 import kh.springboot.member.model.vo.Member;
@@ -16,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 public class BoardService {
 
 	private final BoardMapper mapper;
+	
+	
 	public int getListCount(int i) {
 		return mapper.getListCount(i);
 	}
@@ -55,5 +58,39 @@ public class BoardService {
 	public int deleteBoard(int bId) {
 		return mapper.deleteBoard(bId);
 	}
+
+
+	//첨부파일 게시글 전체조회하기
+	
+	public ArrayList<Attachment> selectAttmBoardList() {
+		return mapper.selectAttmBoardList();
+	}
+
+
+	public int insertAttm(ArrayList<Attachment> list) {
+		/*방법 1.
+		 * 이걸 list의 길이만큼 넣어야 하므로 반복문이 필요함. 근데 쿼리를 그렇게 쓸 순 없으니까
+		 *for문으로 DB에 반복 요청을 하는 것.
+		 * insert into attachment
+		 * values (seq_aid.nextVal, 
+		 * #{attmId}, #{originalName}, #{renameName}, #{attmPath}, #{attmLevel}, default)
+		 
+		
+		int result = 0;
+		for(int i = 0; i <list.size(); i++) {
+			Attachment a = list.get(i);
+			result = mapper.insertAttm(a);
+		}
+		return result; */
+		
+		//방법2. 쿼리에 foreach 써서 넣어보기
+		return mapper.insertAttm(list);
+		
+	}
+
+
+	
+
+	
 
 }

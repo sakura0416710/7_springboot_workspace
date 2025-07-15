@@ -23,7 +23,7 @@ import kh.springboot.member.model.vo.Member;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/board") //공용url만들기(/board/=/board 그게그거)
+@RequestMapping("/board") //공용url만들기(/board/=/board 그게그거, 여러 개의 공용url은 ({"",""})해도 되는데 메소드마다 if로 경우를 나눠주어야 함.
 @RequiredArgsConstructor
 public class BoardController {
 

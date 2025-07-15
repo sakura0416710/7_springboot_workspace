@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
 
+import kh.springboot.board.model.vo.Attachment;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.PageInfo;
 
@@ -29,5 +30,12 @@ public interface BoardMapper {
 
 	//6. 게시글 삭제
 	int deleteBoard(int bId);
+	
+	
+	//1.첨부파일 게시글전체조회하기
+	ArrayList<Attachment> selectAttmBoardList();
+
+	//2.첨부파일 게시판(첨부파일 존재하는 게시글) 등록하기
+	int insertAttm(ArrayList<Attachment> list);
 
 }
