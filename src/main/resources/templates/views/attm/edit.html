@@ -11,45 +11,57 @@
 		<main>
 			<div class="py-5 text-center">
 				<a href="/home"><img class="d-block mx-auto mb-4" src="/image/springboot.png" width="130"></a>
-				<h2>WRITE ATTACHMENT</h2>
+				<h2>ATTACHMENT UPDATE FORM</h2>
 			</div>
 
-			<div style="margin-left: 350px; margin-right: 350px;">								<!-- 글데이터 + 파일 데이터를 넘길 때 필요 !!! -->
-				<form class="needs-validation" action="/attm/insert" method="POST" id="attmForm" encType="multipart/form-data" >
+			<div style="margin-left: 350px; margin-right: 350px;">
+				<form class="needs-validation" action="/attm/update" method="POST" encType="multipart/form-data" id="attmForm">
+					<input type="hidden" th:value="${b.boardId}"name="boardId"/>
+					<input type="hidden" th:value="${page}" name="page"/>
 					<div class="row g-3">
 						<div class="col-12">
-							<label for="attmTitle" class="form-label">TITLE</label>
-							<input type="text" class="form-control" id="boardTitle" name="boardTitle">
+							<label for="boardTitle" class="form-label">TITLE</label>
+							<input type="text" class="form-control" id="boardTitle" name="boardTitle" th:value="${b.boardTitle}">
 						</div>
 
 						<div class="col-12">
 							<div class="input-group">
 					          <span class="input-group-text">CONTENT</span>
-					          <textarea class="form-control" rows="10" name="boardContent" style="resize: none;"></textarea>
+					          <textarea class="form-control" rows="10" name="boardContent" style="resize: none;">[[${b.boardContent}]]</textarea>
 					        </div>
 						</div>
 						
-						<button type="button" class="w-25 btn btn-outline-success" id="addFile">+파일추가</button>
+						<br><br><br>
+						<div th:each="a:${list}">
+							<h5>
+								<a th:leaf="@{/}+${a.renameName}" th:download="${a.originalName}">[[${a.originalName}]]</a>
+								<button type="button" class="btn-outline-dark btn-sm deleteAttm" th:id="|delete-${a.renameName}/${a.attmLevel}|">삭제OFF</button>
+								<input type="hidden" name="deleteAttm"/>
+							</h5>
+						</div>
+						
+						<button type="button" class="w-25 btn btn-outline-success" id="addFile"> + 파일추가</button>
 						<div id="fileArea">
 							<div class="mb-3">
 								<input type="file" class="form-control form-control-lg" name="file">
 							</div>
 						</div>
-						
 						<br><br><br><br><br>
 						
-						<button class="w-100 btn btn-success btn-lg" type="button" id="submitAttm">SUBMIT</button>
+						<button class="w-100 btn btn-success btn-lg" id="submitAttm">SUBMIT</button>
 						<button class="w-100 btn btn-dark btn-lg" type="button" onclick="javascript:history.back();">BACK</button>
+						<button class="w-100 btn btn-dark btn-lg" type="button" th:onclick="|location.href='/attm/list?page=${page}'|">GO TO LIST</button>
 					</div>
 				</form>
 			</div>
 		</main>
-			<div class="modal fade" tabindex="-1" role="dialog" id="modalChoice">
+		
+		<div class="modal fade" tabindex="-1" role="dialog" id="modalChoice">
 			<div class="modal-dialog" role="document">
 	    		<div class="modal-content rounded-3 shadow">
 	      			<div class="modal-body p-4 text-center">
 	        			<h3 class="mb-0">첨부파일이 삽입되지 않았습니다.</h3>
-	        			<p class="mb-0">작성된 글은 일반 게시판으로 옮겨집니다.</p>
+	        			<p class="mb-0">작성된 글은 일반게시판으로 옮겨집니다.</p>
 	      			</div>
 	      			<div class="modal-footer flex-nowrap p-0">
 	        			<button type="button" class="btn btn-lg btn-link fs-6 text-decoration-none col-6 m-0 rounded-0 border-end" id="moveBoard">
@@ -63,10 +75,9 @@
 
 		<footer class="my-5 pt-5 text-muted text-center text-small"></footer>
 	</div>
-
+	
 	<script>
 		window.onload = ()=>{
-			//파일 여러 개 추가하기 (선생님은 파일추가 input 태그공간을 추가했ㄴ..?여러 개추가할 때는 id쓰면 X(한 페이지에 하나만 있어야 하니까))
 			const fileArea = document.querySelector('#fileArea');
 			document.getElementById('addFile').addEventListener('click', () => {
 				const newDiv = document.createElement('div');
@@ -74,6 +85,31 @@
 				newDiv.innerHTML= '<input type="file" class="form-control form-control-lg" name="file">';
 				fileArea.append(newDiv);
 			});
+			//삭제OFF버튼 클릭 시 , 해당 버튼의 배경색이 검은색 글자는 흰색으로 바뀌며 삭제ON으로 변경
+			//삭제ON이 되면 해당 버튼의 id(delete-re/lv)를 이용하여 버튼 다음 요소인 input type hidden의 value에 값(re/lv)삽입하기.
+			//삭제OFF : 버튼다음 요소인 input type hidden의 value제거
+			
+			const delBtns = document.getElementsByClassName('deleteAttm');
+			for(const btn of delBtns){
+				btn.addEventListener('click', function(){
+					const nextHidden = this.nextElementSibling; //hidden에 접근
+					if(nextHidden.value == ''){
+						this.style.background = 'black';
+						this.style.color = 'white';
+						this.innerText = '삭제ON';
+						nextHidden.value = this.id.split('-')[1]; //${a.renameName}/${a.attmLevel} 이거넣기
+					} else {
+						this.style.background = 'none';
+						this.style.color = 'black';
+						this.innerText = '삭제OFF';
+						nextHidden.removeAttribute('value');
+					}
+				});
+			}
+			
+			
+			
+			
 			
 			//submit버튼 눌렀을 때 파일을 선택하지 않으면 모달이 뜸. 
 			//'네'를 클릭하거나 첨부 파일이 하나라도 있으면 form submit.
@@ -87,7 +123,15 @@
 						isEmpty = false;
 					}		
 				}
-				if(isEmpty){
+				
+				let isAllRemove = true;
+				for(const btn of delBtns){
+					if(btn.innerText == '삭제OFF'){
+						isAllRemove = false;
+					}
+				}
+				
+				if(isEmpty && isAllRemove){
 					$('#modalChoice').modal('show');
 					
 				} else  {
@@ -98,11 +142,8 @@
 			moveBoard.addEventListener('click', () => {
 				$('#attmForm').submit();
 			});
-		};
+		}
 		
 		</script>
 </body>
-		
-		
-
 </html>

@@ -92,10 +92,11 @@ public class BoardController {
 	}
 	
 	@PostMapping("update")
-	public String updateBoard(@ModelAttribute Board b,
-							 @RequestParam("page")int page) {
+	public String updateBoard(@ModelAttribute Board b,@RequestParam("page")int page) {
+		b.setBoardType(1);
 		int result = bService.updateBoard(b);
-		if(result > 0) { //게시글 상세조회로 넘기기("/{id}/{page}")
+		if(result > 0) { 
+			//게시글 상세조회로 넘기기("/{id}/{page}")
 			//return "redirect:/board/" + b.getBoardId() + "/" + page;
 			return String.format("redirect:/board/%d/%d", b.getBoardId(),page); //printf같이 쓸 수도 있다.
 		} else {

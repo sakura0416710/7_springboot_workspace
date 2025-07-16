@@ -61,9 +61,9 @@ public class BoardService {
 
 
 	//첨부파일 게시글 전체조회하기
-	
-	public ArrayList<Attachment> selectAttmBoardList() {
-		return mapper.selectAttmBoardList();
+	//(인자 : null을 받아야 해서 int가 아니라 인티져로 바꿔주기)
+	public ArrayList<Attachment> selectAttmBoardList(Integer bId) {
+		return mapper.selectAttmBoardList(bId);
 	}
 
 
@@ -87,6 +87,19 @@ public class BoardService {
 		return mapper.insertAttm(list);
 		
 	}
+
+
+	public int deleteAttm(ArrayList<String> delRename) {
+		return mapper.deleteAttm(delRename);
+	}
+
+
+	public void updateAttmLevel(int boardId) {
+		mapper.updateAttmLevel(boardId);
+		
+	}
+
+
 
 
 	

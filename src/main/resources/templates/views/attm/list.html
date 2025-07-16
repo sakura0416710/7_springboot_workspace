@@ -63,5 +63,56 @@
 			</div>
 		</div>
 	</main>
+	
+	<script th:inline="javascript">
+		//card클릭 시 해당 게시글의 boardId를 url에 포함시켜 attm/{boardId}/{currentPage}로 이동하게 하는 js.
+		//form 없이 post방식으로 게시글 클릭 시 , pathVariable로 상세보기페이지 전송
+		window.onload = () => {
+			const divs = document.getElementsByClassName('card');
+			for(const div of divs){
+				div.addEventListener('click', function(){
+					const fullId = this.querySelector('.bId').innerText; //No.13
+					const boardId = fullId.split(' ')[1];
+					/*<![CDATA[*/
+					location.href='/attm/' + boardId + '/' + /*[[${pi.currentPage}]]*/1;
+					/*]]>*/
+				});
+			}
+				
+		}
+		
+		
+		
+
+
+</script>
 </body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </html>

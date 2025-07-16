@@ -8,6 +8,7 @@ import org.apache.ibatis.session.RowBounds;
 import kh.springboot.board.model.vo.Attachment;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.PageInfo;
+import kh.springboot.member.model.vo.Member;
 
 @Mapper
 public interface BoardMapper {
@@ -33,9 +34,17 @@ public interface BoardMapper {
 	
 	
 	//1.첨부파일 게시글전체조회하기
-	ArrayList<Attachment> selectAttmBoardList();
+	ArrayList<Attachment> selectAttmBoardList(Integer bId);
 
 	//2.첨부파일 게시판(첨부파일 존재하는 게시글) 등록하기
 	int insertAttm(ArrayList<Attachment> list);
+
+	
+	
+	//첨부파일 게시판 수정 중 첨부파일 삭제
+	int deleteAttm(ArrayList<String> delRename);
+
+	//첨부파일 게시판 수정 중 첨부파일 레벨 변경
+	void updateAttmLevel(int boardId);
 
 }

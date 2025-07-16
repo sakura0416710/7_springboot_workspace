@@ -20,4 +20,8 @@ public class PageInfo {
 	private int endPage;
 	private int boardLimit;
 	
+	public PageInfo(int currentPage) {
+		this.currentPage = currentPage;
+	}
+
 }
