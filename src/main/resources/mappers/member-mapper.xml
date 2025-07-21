@@ -59,7 +59,11 @@
       where id = #{id}
    </update>
    
+   <!-- 아이디 중복확인 -->
+   <select id="checkValue" resultType="_int">
+   	select count(*) from member where ${col} = #{val} <!-- #{}쓰면 ''가 들어가니까 -->
    
+   </select>
    
    
 </mapper>

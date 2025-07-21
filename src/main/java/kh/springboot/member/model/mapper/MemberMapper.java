@@ -22,4 +22,6 @@ public interface MemberMapper {
 
 	int deleteMember(String id);
 
+	int checkValue(HashMap<String, String> map);
+
 }

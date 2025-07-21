@@ -329,7 +329,7 @@ public class AttachmentController {
 					deleteFile(rename);
 				}
 			}
-			/*제했으니까 이제 다시 파일 레벨 지정하기
+			/*삭제했으니까 이제 다시 파일 레벨 지정하기
 			1-1.기존파일 모두 삭제했을 때 조건 -> level 0, 1을 새로 지정해야함		*/
 			if(deleteAttm.length == deleteAttmResult) {
 				existBeforeAttm = false;
@@ -386,9 +386,19 @@ public class AttachmentController {
 				throw new BoardException ("첨부파일 게시글 수정을 실패하였습니다.");
 			}
 		
-		
-		
-	}
+		}
+	
+//		@PostMapping("delete")
+//		public String deleteAttm (@RequestParam("boardId")int bId) {
+//			int result1 = bService.deleteBoard(bId); //보드 부분 삭제
+//			int result2 = bService.statusNAttm(bId); // 첨부파일 부분 삭제(bId가 같은 것들 매칭시켜서)
+//			
+//			if(result1 > 0 && result2 > 0) {
+//				return "redirect:/attm/list";
+//			} else {
+//				throw new BoardException("첨부파일 게시판 삭제 실패");
+//			}
+//		}
 	
 	
 	

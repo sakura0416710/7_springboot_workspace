@@ -9,6 +9,7 @@ import kh.springboot.board.model.mapper.BoardMapper;
 import kh.springboot.board.model.vo.Attachment;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.PageInfo;
+import kh.springboot.board.model.vo.Reply;
 import kh.springboot.member.model.vo.Member;
 import lombok.RequiredArgsConstructor;
 
@@ -99,6 +100,27 @@ public class BoardService {
 		
 	}
 
+
+//	public int statusNAttm(int bId) {
+//		return mapper.statusNAttm(bId);
+//	}
+	
+	public ArrayList<Board> selectTop() {
+		return mapper.selectTop();
+	}
+
+
+	public ArrayList<Reply> selectReplyList(int bId) {
+		return mapper.selectReplyList(bId);
+	}
+
+
+	public int insertReply(Reply r) {
+		// TODO Auto-generated method stub
+		return mapper.insertReply(r);
+	}
+
+	
 
 
 

@@ -123,10 +123,39 @@
   					 where ref_board_id = #{boardId})
   </update>
   
+  <!-- 첨부파일 게시글 삭제 : board status가 N으로 되면 자동적으로 attm과 reply도 n으로 하는 트리거 쿼리 작성.
+		  <update id="statusNAttm">
+		  	update attachment
+		  	set attm_status = 'N'
+		  	where ref_board_id = #{bId}
+		  </update>													-->
+
+  <!-- 조회수 기준 가장 많은 게시글 상위 5개 -->
+  <select id="selectTop">
+  	 <![CDATA[
+  	 select * from
+		(select * from board
+		join member on (id = board_writer)
+	    where board_status = 'Y'
+	    order by board_count desc)
+	where rownum <= 5
+	 ]]>
+  </select>
   
+  <!--게시물 당 댓글 불러오기-->
+  <select id="selectReplyList" resultType="Reply">
+  	select * 
+  	from reply
+  		join member on (reply_writer = id)
+  	where reply_status = 'Y' and ref_board_id = #{bId}
+  	order by reply_id desc
+  </select>
   
+  <!-- 댓글 등록하기 -->
+  <insert id="insertReply">
+  	insert into reply
+  	values (seq_rid.nextval, #{replyContent}, #{refBoardId}, #{replyWriter}, sysdate, sysdate, default)
   
-  
-  
+  </insert>
   
   </mapper>

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
@@ -259,6 +259,18 @@ public class MemberController {
 	}
 	
 	
+	//아이디 중복 확인 
+	@GetMapping("checkValue")
+	@ResponseBody //메서드 리턴값을 view가 아니라 HTTP응답 바디에 직접 쓰겠다. =>ajax요청을 처리해서 json, int등 반환(문자열, 숫자 등 데이터 등을 그대로 응답한다API처럼)
+	public int checkValue (@RequestParam("value")String value,
+							@RequestParam("column")String column) {
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("col", column);
+		map.put("val", value);
+
+		return mService.checkValue(map); //0, 아님 1을 반환해서 ajax로 보냄
+		
+	}
 	
 	
 	

@@ -1,7 +1,10 @@
 package kh.springboot.board.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,14 +13,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kh.springboot.board.model.exception.BoardException;
 import kh.springboot.board.model.service.BoardService;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.PageInfo;
+import kh.springboot.board.model.vo.Reply;
 import kh.springboot.common.Pagination;
 import kh.springboot.member.model.vo.Member;
 import lombok.RequiredArgsConstructor;
@@ -71,9 +81,11 @@ public class BoardController {
 	@GetMapping("/{id}/{page}")
 	public String selectBoard(@PathVariable("id")int bId, @PathVariable("page") int page, HttpSession session, Model model) {
 		Member loginUser = (Member)session.getAttribute("loginUser");
-		Board b = bService.selectBoard(bId, loginUser);
+		Board b = bService.selectBoard(bId, loginUser);;
+		ArrayList<Reply> list = bService.selectReplyList(bId);
 		if(b != null) {
 			model.addAttribute("b",b).addAttribute("page",page);
+			model.addAttribute("list", list);
 			return "detail";
 		} else {
 			throw new BoardException("게시글 상세보기를 실패하였습니다.");
@@ -104,21 +116,82 @@ public class BoardController {
 		}
 		
 	}
-	@PostMapping("delete")
-	public String deleteBoard(@RequestParam("boardId")int bId) {
+	@PostMapping("delete") //보드에서 status=N되면 attm, reply도 트리거로 자동status=N으로 업데이트.
+	public String deleteBoard(@RequestParam("boardId")int bId, HttpServletRequest request) {
 		int result = bService.deleteBoard(bId);
-		if(result > 0) {
-			return "redirect:/board/list";
+		if(result > 0) {//redirect + board list혹은 attm list으로 경로 나누기 -> 최종경로 board/delete로 가서 삭제하는 것.
+			return "redirect:/" + (request.getHeader("referer").contains("board")? "board" : "attm") + "/list";
 			
 		} else {
 			throw new BoardException("게시글 삭제 실패");
 		}
 	}
+
 	
 	
+	@GetMapping(value = "top",produces="application/json; charset=UTF-8")//response의 contentType을 제어함
+	@ResponseBody
+	public String selectTop(HttpServletResponse response){
+		ArrayList<Board> topList = bService.selectTop();
+		
+		//json 버전
+		//Board = >JSONObject, arrayList => JSONArray
+		JSONArray array = new JSONArray();
+		for (Board b : topList) {
+			JSONObject json = new JSONObject();
+			json.put("boardId", b.getBoardId());
+			json.put("boardTitle", b.getBoardTitle());
+			json.put("nickName", b.getNickName());
+			json.put("boardModifyDate", b.getBoardModifyDate());
+			json.put("boardCount",b.getBoardCount());
+			
+			array.put(json); //지원하는 라이브러리 종류에 따라 메소드, Date지원도 됨 (예전에는 add, date지원 안됏음. 그건json simple)
+			
+		}
+		//response.setContentType("application/json; charset=UTF-8");
+		return array.toString();	
+		
+		
+		
+		/*GSON버전
+		Gson gson = new Gson();
+		response.setContentType("application/json; charset=UTF-8");
+		gson = new GsonBuilder() .setDateFormat("yyyy-MM-dd").create();
+		try {
+			gson.toJson(topList, response.getWriter());
+		} catch (JsonIOException | IOException e) {
+			e.printStackTrace();
+		}		*/
+		
+	}
 	
-	
-	
+	//댓글 등록
+	@PostMapping(value = "rinsert", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String insertReply(@ModelAttribute Reply r) {
+		//arrayList에 담아야된느거 아니냐
+		int result = bService.insertReply(r);
+		ArrayList<Reply> list = bService.selectReplyList(r.getRefBoardId());
+		
+		JSONArray array = new JSONArray();
+		for(Reply reply : list) {
+			JSONObject json = new JSONObject();
+			json.put("replyContent", reply.getReplyContent());
+			json.put("nickName", reply.getNickName());
+			json.put("replyModifyDate", reply.getReplyModifyDate());
+			array.put(json);
+		}
+		return array.toString();				
+		
+/*		Gson gson = new Gson();
+		response.setContentType("application/gson; charset=UTF-8");
+		try {
+			gson.toJson(topList, response.getWriter());
+		} catch (JsonIOException | IOException e) {
+			e.printStackTrace();
+		}				*/
+		
+	}
 	
 	
 	

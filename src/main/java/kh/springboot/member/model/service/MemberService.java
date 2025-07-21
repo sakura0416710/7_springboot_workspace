@@ -33,7 +33,6 @@ public class MemberService {
 	public int updateMember(Member m) {
 		return mapper.updateMember(m);
 	}
-
 	
 	//5.비밀번호 수정
 	public int updatePassword(Member m) {
@@ -42,5 +41,10 @@ public class MemberService {
 	//6. 회원탈퇴 
 	public int deleteMember(String id) {
 		return mapper.deleteMember(id);
+	}
+	
+	//7.아이디 중복확인
+	public int checkValue(HashMap<String, String> map) {
+		return mapper.checkValue(map);
 	}
 }
