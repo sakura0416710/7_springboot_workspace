@@ -116,9 +116,15 @@ public class BoardService {
 
 
 	public int insertReply(Reply r) {
-		// TODO Auto-generated method stub
 		return mapper.insertReply(r);
 	}
+
+
+	public int deleteReply(int rId) {
+		return mapper.deleteReply(rId);
+	}
+
+
 
 	
 

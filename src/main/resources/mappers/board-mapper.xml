@@ -158,4 +158,27 @@
   
   </insert>
   
+  
+  <!-- 댓글 삭제하기 -->
+  <delete id="deleteReply">
+  	delete from reply
+  	where reply_id = #{rId}
+  </delete>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   </mapper>

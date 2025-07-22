@@ -61,4 +61,7 @@ public interface BoardMapper {
 	//댓글 등록하기
 	int insertReply(Reply r);
 
+	//댓글 삭제하기
+	int deleteReply(int rId);
+
 }

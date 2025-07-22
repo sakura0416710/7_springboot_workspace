@@ -1,6 +1,6 @@
 package kh.springboot.board.controller;
 
-import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -152,7 +151,6 @@ public class BoardController {
 		return array.toString();	
 		
 		
-		
 		/*GSON버전
 		Gson gson = new Gson();
 		response.setContentType("application/json; charset=UTF-8");
@@ -165,7 +163,9 @@ public class BoardController {
 		
 	}
 	
-	//댓글 등록
+	
+	
+	/*댓글 등록(JSON버전)
 	@PostMapping(value = "rinsert", produces="application/json; charset=UTF-8")
 	@ResponseBody
 	public String insertReply(@ModelAttribute Reply r) {
@@ -183,19 +183,57 @@ public class BoardController {
 		}
 		return array.toString();				
 		
-/*		Gson gson = new Gson();
-		response.setContentType("application/gson; charset=UTF-8");
+	}		
+	
+	//댓글 등록(GSON버전)
+	@PostMapping("rinsert")
+	@ResponseBody
+	public void insertReply(@ModelAttribute Reply r, HttpServletResponse response) {
+		int result = bService.insertReply(r);
+		ArrayList<Reply> list = bService.selectReplyList(r.getRefBoardId());
+		
+		response.setContentType("application/json; charset=UTF-8");
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 		try {
-			gson.toJson(topList, response.getWriter());
+			gson.toJson(list, response.getWriter());
 		} catch (JsonIOException | IOException e) {
 			e.printStackTrace();
-		}				*/
+		}
+		
+		
+	}				*/
+	
+	//댓글등록 jackson버전 : springboot에서 자동으로 라이브러리 제공
+	//
+	@GetMapping(value = "rinsert", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public String insertReply(@ModelAttribute Reply r/*, HttpServletResponse response*/) {
+		int result = bService.insertReply(r);
+		ArrayList<Reply> list = bService.selectReplyList(r.getRefBoardId());
+		
+		ObjectMapper om = new ObjectMapper(); //내가 String으로 값을 쓰겠다.
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		om.setDateFormat(sdf);
+		String str = null;
+		try {
+			str = om.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} 
+		//response.setContentType("application/json; charset=UTF-8"); 둘다됨 !
+		return str;
 		
 	}
 	
-	
-	
-	
+	//댓글 삭제
+	@GetMapping(value="rdelete", produces="application/json; charset=UTF-8")
+	@ResponseBody
+	public int deleteReply(@RequestParam("rId")int rId) {
+		return bService.deleteReply(rId);
+		
+		
+	}
 }
 	
 	
