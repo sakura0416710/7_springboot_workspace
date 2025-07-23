@@ -2,6 +2,8 @@ package kh.springboot.board.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -234,6 +236,12 @@ public class BoardController {
 		
 		
 	}
+	//댓글 수정(rId랑 replyContent를 reply r에 (객체만든거)담아서 보내기)
+	@GetMapping("rupdate")
+	public int updateReply(@ModelAttribute Reply r) {
+		return bService.updateReply(r);
+	}
+	
 }
 	
 	

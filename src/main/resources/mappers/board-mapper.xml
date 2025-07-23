@@ -165,10 +165,12 @@
   	where reply_id = #{rId}
   </delete>
   
-  
-  
-  
-  
+  <!-- 댓글 수정하기 -->
+  <update id="updateReply">
+  	update from reply
+  	set reply_content = #{replyContent}
+  	where reply_id = #{rId}
+  </update>
   
   
   

@@ -125,6 +125,12 @@ public class BoardService {
 	}
 
 
+	public int updateReply(Reply r) {
+		return mapper.updateReply(r);
+	}
+
+
+
 
 	
 
