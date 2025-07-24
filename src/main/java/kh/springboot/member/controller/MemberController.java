@@ -2,6 +2,8 @@ package kh.springboot.member.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
 import kh.springboot.HomeController;
+import kh.springboot.board.model.exception.BoardException;
 import kh.springboot.member.model.exception.MemberException;
 import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
@@ -40,6 +45,8 @@ public class MemberController {
 	
 	//암호화 설정파일 주입받아오기 (생성자 주입)
 	private final BCryptPasswordEncoder bcrypt;
+	//이메일 샌더 설정
+	private final JavaMailSender mailSender;
 
 
 	
@@ -273,10 +280,83 @@ public class MemberController {
 	}
 	
 	
+	//이메일 인증
+	@GetMapping("echeck")
+	@ResponseBody
+	public String checkEmail(@RequestParam("email")String email) {
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		
+		//수신자, 제목, 본문 설정
+		String subject = "[SpringBoot] 이메일 확인";
+		String body = "<h1 align = 'center'>SpringBoot 이메일 확인</h1><br>";
+		body += "<div style='border : 5px solid yellowgreen; text-align: center; font-size:25px;'>";
+		body += "본 메일은 이메일 확인하기 위해 발송되었습니다.<br>";
+		body += "아래 숫자를 인증번호 확인란에 작성하여 확인해주시기 바랍니다.<br><br>";
 	
+		//랜덤 숫자 5개뽑기 : 이 방법은 안됨Math.random()* 100000 + 1; //0 <= N < 100000 : 0 ~ 99999.99999999999999
+		String random = ""; //null로 초기화 불가. random이라는 변수에 한 숫자씩 이어붙여서 5자리를 만들 것임. += 연산자로 이어붙일건데
+							//null로 해버리면 null7604이런 식으로 붙여짐.
+		for(int i = 0; i<5; i++) {
+			random += (int)(Math.random()*10);
+		}
+		body += "<span stlye='font-size:30px; text-decoration:underline;'><b>" + random + "</b><span><br></div>";
+		
+		MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+		try {
+			mimeMessageHelper.setTo(email);
+			mimeMessageHelper.setSubject(subject);
+			mimeMessageHelper.setText(body, true);
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		mailSender.send(mimeMessage); //메일 발송
+		return random;				  //보낸 랜덤값 
 	
+	}
 	
+	//아이디, 비밀번호 찾기
+	@GetMapping("findIDPW")
+	public String findIDPW() {
+		return "findIDPW";
+	}
 	
+/*	합치기 !
+ * @PostMapping("fid")
+	public String findId(@ModelAttribute Member m, Model model) {
+		String id = mService.findId(m);
+		if(id != null) {
+			model.addAttribute("id", id);
+			return "findId";
+		} else {
+			throw new BoardException("존재하지 않는 회원입니다.");
+		}
+		
+	}
+	@PostMapping("fpw")
+	public String findPw(@ModelAttribute Member m,  Model model) {
+		Member member = mService.findPw(m);
+		if(member != null) {
+			model.addAttribute("id", m.getId());
+			return "resetPw"; //비번 리셋하는 경우 딱히 보낼 데이터는 없고 뷰 이동.
+		} else {
+			throw new BoardException("존재하지 않는 회원입니다.");
+		
+		}
+	}												*/ 
+	
+	@PostMapping("fInfo")
+	public String findInfo(@ModelAttribute Member m,  Model model) {
+		//아이디 찾기 : name, email전송
+		//비번 찾기 : id, email전송  --> name을 기준삼아서 경우 나누기
+		Member member = mService.findInfo(m); //반환값 멤버객체로 받아오기
+		if(member != null) {
+			model.addAttribute("id", member.getId());
+			return m.getName () == null? "resetPw" : "findId";
+		}else {
+			throw new BoardException("존재하지 않는 회원입니다.");
+		}
+		
+	}
 	
 	
 	

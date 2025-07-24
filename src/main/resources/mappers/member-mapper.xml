@@ -65,5 +65,35 @@
    
    </select>
    
+   <!-- 아이디 찾기 
+   <select id="findId" resultType="string">
+   	select id from member where name=#{name} and email = #{email} and member_status = 'Y'
+   </select>
+   
+    비번찾기 
+   <select id="findPw" resultType="Member">
+   	select * from member
+   	where id = #{id} and email = #{email} and member_status = 'Y'
+   </select>			-->
+   
+   <!-- id+pw찾기 통합본 -->
+   <select id="fInfo" resultType="Member">
+   	select * from member
+   	where member_status = 'Y' and email =#{email} and
+   	<if test="name != null">		<!-- id찾기할때 name쓰니까 -->
+   		name=#{name}
+   	</if>
+   	<if test="name == null">
+   		id = #{id}
+   	</if>
+   </select>
+   
+   
+   
+   
+   
+   
+   
+   
    
 </mapper>

@@ -50,16 +50,25 @@
 							<div class="input-group">
 								<input type="text" class="form-control" id="emailId" name="emailId">
 								<span class="input-group-text">@</span>
-								<select name="emailDomain" style="width: 280px;">
+								<select name="emailDomain" style="width: 200px;">
 									<option>naver.com</option>
 									<option>gmail.com</option>
 									<option>nate.com</option>
 									<option>hanmail.net</option>
 								</select>
+								<button type="button" class="btn btn-outline-success" id="sendEmail">인증번호</button>
 							</div>
 						</div>
 						
 						<div class="col-12">
+							<label class="form-label">EMAIL CONFIRM</label>
+							<div class="input-group">
+								<input type="text" class="form-control">
+								<button type="button" class="w-25 btn btn-outline-success" id="verifyBtn">인증번호 확인</button>
+							</div>
+						</div>
+						
+						<div class="col-12" style="display:none;">
 							<label class="form-label">GENDER</label><br>
 							<input type="radio" id="man" name="gender" value="M" checked> MAN &nbsp;&nbsp;&nbsp;&nbsp;
 							<input type="radio" id="woman" name="gender" value="F"> WOMAN
@@ -100,8 +109,50 @@
 			document.getElementById('nickName').addEventListener('change',function(){
 				checkValue(this);
 			});
+			
+			let confirmData ='';
+			document.getElementById('sendEmail').addEventListener('click',function(){
+				const emailId = document.querySelector('#emailId').value.trim();
+				if(emailId == ''){
+					alert('이메일이 입력되지 않았습니다.');
+					document.querySelector('#emailId').focus();
+				} else {
+					$.ajax({
+						url:'/member/echeck',
+						data : {email : emailId + '@' + document.querySelector('select[name=emailDomain]').value},
+						success:data =>{
+							//console.log(data);
+							alert('성공적으로 메일이 발송되었습니다.');
+							const confirmDiv = $(this).parent().parent().next(); //제이쿼리parent = 자바스크립트 parentElement
+							confirmDiv.slideDown();
+							confirmData = data; //인증번호를 변수에 담기
+							
+						},
+						error: data=>console.log(data)
+					});
+				}
+			});
+			
+			const verifyBtn = document.getElementById('verifyBtn');
+			verifyBtn.addEventListener('click',function() {
+				const verifyNum = this.previousElementSibling;
+				if(verifyNum.value.trim() == ''){
+					alert('인증번호 입력해주세요.');
+				}else if(confirmData == ''){
+					alert('이메일 인증을 먼저 진행해주세요');
+				} else {
+					if(verifyNum.value.trim()==confirmData){
+						alert('이메일이 확인되었습니다.');
+						verifyNum.disabled = true;
+						this.disabled = true;
+					} else {
+						alert('인증번호가 일치하지 않습니다.');
+					}
+				}
+			});
+			
+			
 		}
-		
 			const checkValue = obj => {
 				const resultLabel = obj.nextElementSibling;
 				if(obj.value.trim()==''){
@@ -132,7 +183,7 @@
 	
 	
 	
-	
+			
 	
 	
 	

@@ -47,4 +47,17 @@ public class MemberService {
 	public int checkValue(HashMap<String, String> map) {
 		return mapper.checkValue(map);
 	}
+	/*8.아이디 찾기
+	public String findId(Member m) {
+		return mapper.findId(m);
+	}
+	//9. 비번 찾기
+	public Member findPw(Member m) {
+		return mapper.findPw(m);
+	}		*/
+	
+	//8+9번
+	public Member findInfo(Member m) {
+		return mapper.findInfo(m);
+	}
 }

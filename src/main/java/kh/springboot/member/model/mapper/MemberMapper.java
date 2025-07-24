@@ -24,4 +24,10 @@ public interface MemberMapper {
 
 	int checkValue(HashMap<String, String> map);
 
+/*	String findId(Member m);
+
+	Member findPw(Member m);		*/
+
+	Member findInfo(Member m);
+
 }
