@@ -3,7 +3,6 @@ package kh.springboot.board.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,14 +39,17 @@ public class BoardController {
 
 	private final BoardService bService;
 	
-	@GetMapping("/list")
+	@GetMapping({"/list", "search"})
 	public ModelAndView selectList(@RequestParam(value="page", defaultValue="1")int currentPage,
-							 ModelAndView mv, HttpServletRequest request) {
-		int listCount = bService.getListCount(1); //보드 안에 게시판종류가 모두 들어가있고, 1이 일반게시판, 2가 첨부파일 게시판을 뜻함. 일반게시판에 대한 리스트카운트를 알기 위해 인자로 1을 넣은 것.
+							 ModelAndView mv, HttpServletRequest request, @RequestParam HashMap<String, String> map) {
+		
+		map.put("i", "1");
+		int listCount = bService.getListCount(map); //보드 안에 게시판종류가 모두 들어가있고, 1이 일반게시판, 2가 첨부파일 게시판을 뜻함. 일반게시판에 대한 리스트카운트를 알기 위해 인자로 1을 넣은 것.
 		PageInfo pi = Pagination.getPageInfo(currentPage, listCount, 5); //PageInfo에 기본설정해놓고 값 받아오기
-		ArrayList<Board> list = bService.selectBoardList(pi, 1); //일반게시판의 데이터를 배열로 받아오기
+		ArrayList<Board> list = bService.selectBoardList(pi, map); //일반게시판의 데이터를 배열로 받아오기
 		//받아온 데이터 물고 view로 보내기 (ModelAndView사용)
 		mv.addObject("list", list).addObject("pi", pi).addObject("loc",request.getRequestURI()).setViewName("list");
+		mv.addObject("map", map); //검색결과 유지하기
 		
 		return mv;
 	}
@@ -241,7 +243,22 @@ public class BoardController {
 	public int updateReply(@ModelAttribute Reply r) {
 		return bService.updateReply(r);
 	}
-	
+	/*게시글 검색
+	@GetMapping("search")
+	public String searchBoard(@RequestParam(value="page", defaultValue="1")int currentPage, 
+							  @RequestParam HashMap<String, String> map, Model model, 
+							  HttpServletRequest request) {
+		map.put("i", "1");
+		int listCount = bService.getListCount(map); //원래 있는 보드리스트 뽑아오는 메소드 +인자변경해서 사용하기 (or메소드 새로만들기)
+		
+		//pagination처리
+		PageInfo pi = Pagination.getPageInfo(currentPage, listCount, 5);
+		ArrayList<Board> list = bService.selectBoardList(pi, map);
+		model.addAttribute("list", list).addAttribute("pi", pi).addAttribute("loc", request.getRequestURI());
+		
+		
+		return "list";
+	}	=> list랑 search랑 한꺼번에 처리하도록 함.			*/
 }
 	
 	

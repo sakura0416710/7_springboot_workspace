@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body> 
+	<!-- 우회해서 "비밀번호 수정완료" 메시지를 띄우고 그다음 home을 이동하도록 만들기.
+	get방식으로(쿼리스트링으로 메시지가뜸) 보내기 싫고, redirect를 직접쓰면 데이터를 담ㅇ아서 보낼 수 없음. -->
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+			window.onload = () => {
+				alert(/*[[${msg}]]*/);
+				location.href=/*[[${url}]]*/null;
+			}
+			
+		/*]]*/
+	
+	
+	
+	</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

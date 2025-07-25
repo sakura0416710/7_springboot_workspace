@@ -6,7 +6,19 @@
   <!-- 게시글 전체 조회 -->
   <select id="getListCount" resultType="_int">
   	select count(*) from board
+  	join member on (board_writer = id)
   	where board_type=#{i} and board_status='Y'
+  	<if test="value != null">
+  		<!-- 부분만 있어도 검색가능하도록 -->
+  		<choose>
+  			<when test="condition == 'title' or condition == 'content'">
+  				and board_${condition} like '%${value}%'
+  			</when>
+  			<when test="condition == 'writer'">
+  				and nickname = #{value}
+  			</when>
+  		</choose>
+  	</if>
   </select>
   
   
@@ -16,6 +28,17 @@
   from board
   		join member on(board_writer=id)
   where board_status = 'Y' and board_type=#{i}
+  <if test="value != null">
+  		<!-- 부분만 있어도 검색가능하도록 -->
+  		<choose>
+  			<when test="condition == 'title' or condition == 'content'">
+  				and board_${condition} like '%${value}%'
+  			</when>
+  			<when test="condition == 'writer'">
+  				and nickname = #{value}
+  			</when>
+  		</choose>
+  	</if>
   order by board_id desc
   </select>
   

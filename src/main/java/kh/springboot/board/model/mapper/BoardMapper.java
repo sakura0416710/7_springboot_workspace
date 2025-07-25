@@ -1,6 +1,7 @@
 package kh.springboot.board.model.mapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
@@ -14,10 +15,10 @@ import kh.springboot.member.model.vo.Member;
 @Mapper
 public interface BoardMapper {
 	//1.게시글 전체 조회
-	int getListCount(int i);
+	int getListCount(HashMap<String, String> map);
 
 	//내가 보낼 데이터와 그걸 처리할 객체 순서대로!! 순서 중요.
-	ArrayList<Board> selectBoardList(int i, RowBounds rowBounds);
+	ArrayList<Board> selectBoardList(HashMap<String, String> map, RowBounds rowBounds);
 
 	//3.게시글 작성
 	int insertBoard(Board b);
@@ -66,5 +67,7 @@ public interface BoardMapper {
 
 	//댓글 수정하기
 	int updateReply(Reply r);
+
+	
 
 }

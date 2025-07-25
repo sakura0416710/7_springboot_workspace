@@ -37,22 +37,42 @@
 	        	</table>
 	       	</div>
 		</div>
-        <nav aria-label="Standard pagination example" style="float: right;">
+        <nav aria-label="Standard pagination example" style="float: right; margin-left:50px;">
         	<ul class="pagination">
 	            <li class="page-item">
-	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage-1})}" aria-label="Previous">
+	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage-1})}"th:if="${map['value'] == null}" aria-label="Previous">
 	            		<span aria-hidden="true">&laquo;</span>
+	              	</a>
+	              	<a th:href="@{${loc}(page=${pi.currentPage - 1}, value=${map['value']}, map['condition'])}"aria-label="Previous">
+	              		<span aria-hidden="true">&laquo;</span>
 	              	</a>
 	            </li>
 	            <li class="page-item" th:each="p: ${#numbers.sequence(pi.startPage, pi.endPage)}">
-	            	<a class="page-link" th:href="@{${loc}(page=${p})}">[[${p}]]</a></li>
+	            	<a class="page-link" th:href="@{${loc}(page=${p})}" th:if="${map['value'] == null}">[[${p}]]</a></li>
+	            	<a class="page-link" th:href="@{${loc}(page=${p}, value=${map['value']}, map['condition'])}" th:if="${map['value'] != null}">[[${p}]]</a></li>
 	            <li class="page-item">
-	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage+1})}" aria-label="Next">
+	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage+1})}"th:if="${map['value'] == null}" aria-label="Next">
+	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage+1}, value=${map['value']}, map['condition'])}"th:if="${map['value'] != null}" aria-label="Next">
 	            		<span aria-hidden="true">&raquo;</span>
 	            	</a>
 	            </li>
 	    	</ul>
-        </nav>		
+        </nav>	
+        
+        
+        	
+        <!-- 검색기능 -->
+        <div style="display:inline; float:right;">
+        	<select class="form-select" style="display:inline; width:auto;">
+        		<option value="title" th:selected="${map['condition'] != null && map['condition'] == 'title'}">제목</option>
+        		<option value="writer"th:selected="${map['condition'] != null && map['condition'] == 'writer'}">작성자</option>
+        		<option value="content"th:selected="${map['condition'] != null && map['condition'] == 'content'}">내용</option>
+        	</select>
+        	<input type="search" class="form-control" th:value="${map['value]!= null ? map['value'] : ''}" placeholder="Search..." style="width:250px; display:inline;">
+        	<button class="btn btn-success" type="button" id="search">SEARCH</button>
+        </div>
+        
+        
        	<button class="btn btn-outline-success" th:if="${session.loginUser}" type="button" onclick="location.href='/board/write'">WRITE BOARD</button>
 	</div>
 	
@@ -69,6 +89,12 @@
 					location.href = '/board/' + boardId + '/' + /*<![CDATA[*//*[[${pi.currentPage}]]*/1/*]]>*/;
 				});
 			}
+			
+			document.getElementById('search').addEventListener('click', e => {
+				const valueInpt = e.target.previousElementSibling; 
+				const conditionSelect = valueInput.previousElementSibling;
+				location.href='/board/search?value=' + valueInput.value + '&condition=' + conditionSelect.value;
+			});
 			
 		}
 	</script>

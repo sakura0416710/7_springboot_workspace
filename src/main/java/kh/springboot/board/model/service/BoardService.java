@@ -1,6 +1,7 @@
 package kh.springboot.board.model.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,12 @@ public class BoardService {
 	private final BoardMapper mapper;
 	
 	
-	public int getListCount(int i) {
-		return mapper.getListCount(i);
+	public int getListCount(HashMap<String, String> map) {
+		return mapper.getListCount(map);
 	}
 	
 	
-	public ArrayList<Board> selectBoardList(PageInfo pi, int i) {
+	public ArrayList<Board> selectBoardList(PageInfo pi, HashMap<String, String> i) {
 		int offset = (pi.getCurrentPage()-1)*pi.getBoardLimit();
 		RowBounds rowBounds = new RowBounds(offset, pi.getBoardLimit());
 		return mapper.selectBoardList(i, rowBounds);
@@ -128,7 +129,6 @@ public class BoardService {
 	public int updateReply(Reply r) {
 		return mapper.updateReply(r);
 	}
-
 
 
 

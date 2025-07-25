@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -358,6 +359,21 @@ public class MemberController {
 		
 	}
 	
+	@PostMapping("fpwUpdate")
+	public String updatePwd(@ModelAttribute Member m, Model model) {
+		m.setPwd(bcrypt.encode(m.getPwd())); //비밀번호 암호화 시켜주기
+		int result = mService.updatePassword(m); //그걸 넘겨줘
+		//redirect는 데이터를 담아서 옮길 수 없지만 부트제공 기능redirectAttribute는 여기서 데이터 담아서 리디렉트 가능
+		 //그럼 쿼리스트링으로 메시지가 뜸
+		if(result > 0 ) {
+			model.addAttribute("msg", "비밀번호 수정이 완료되었습니다.");
+			
+			model.addAttribute("url","/home");
+			return "views/common/sendRedirect";
+		} else {
+			throw new BoardException("비밀번호 수정을 실패하였습니다.");
+		}
+	}
 	
 	
 	

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +41,9 @@ public class AttachmentController {
 	@GetMapping("list")
 	public String selectList(@RequestParam(value="page",defaultValue="1")int currentPage,
 									Model model, HttpServletRequest request ) {
-		int listCount = bService.getListCount(2);
+		HashMap<String, String>map = new HashMap<String, String>();
+		map.put("i", "2");
+		int listCount = bService.getListCount(map);
 		//현재 페이지, 전체 게시글 개수, 9개로 끊겠다(BoardLimit)
 		PageInfo pi = Pagination.getPageInfo(currentPage, listCount, 9); 
 		
@@ -49,7 +52,7 @@ public class AttachmentController {
 		(2)첨부파일 부분: insert를 attachment테이블
 		*첨부파일의 가장 첫번째 사진 : 썸네일로 이용하기 위해 attmLevel 컬럼 생성(ex. 0이면 썸넬, 1이면 아닌 것)
 		*/
-		ArrayList<Board> bList = bService.selectBoardList(pi,2); //(1)
+		ArrayList<Board> bList = bService.selectBoardList(pi,map); //(1)
 		ArrayList<Attachment> aList = bService.selectAttmBoardList(null); //(2) -> 썸네일만 가져오는 쿼리랑 상세보기(이미지까지전부)쿼리 경우를 나눠주기(밑에 attmDetail 메소드)
 		
 		if(bList != null) {
