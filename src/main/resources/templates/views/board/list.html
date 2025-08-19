@@ -2,101 +2,111 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>General Board</title>
 <style>td:hover{cursor: pointer;}</style>
 </head>
 <body>
 	<div th:replace="~{views/common/navbar :: navbar}"></div>
 	<div class="container py-4">
-		<div class="bd-example-snippet bd-code-snippet">
-			<div class="p-5 mb-4 bg-light rounded-3">
-				<div class="container-fluid py-5">
-					<h1 class="display-5 fw-bold">General Board</h1>
-				</div>
-			</div>
-			<div class="bd-example">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th width="80px">글 번호</th>
-							<th>글 제목</th>
-							<th width="130px">작성자</th>
-							<th width="130px">작성일자</th>
-							<th width="80px">조회수</th>
-	          			</tr>
-	          		</thead>
-	         		<tbody> 
-	          			<tr th:each="b : ${list}">
-	            			<td th:text="${b.boardId}">Default</td>
-	            			<td>[[${b.boardTitle}]]</td>
-	            			<td th:text="${b.nickName}"></td>
-	            			<td>[[${b.boardModifyDate}]]</td>
-	            			<td th:text="${b.boardCount}"></td>
-	          			</tr>
-	          		</tbody>
-	        	</table>
-	       	</div>
+		<div class="p-5 mb-4 bg-light rounded-3">
+			<h1 class="display-5 fw-bold">General Board</h1>
 		</div>
-        <nav aria-label="Standard pagination example" style="float: right; margin-left:50px;">
-        	<ul class="pagination">
-	            <li class="page-item">
-	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage-1})}"th:if="${map['value'] == null}" aria-label="Previous">
-	            		<span aria-hidden="true">&laquo;</span>
-	              	</a>
-	              	<a th:href="@{${loc}(page=${pi.currentPage - 1}, value=${map['value']}, map['condition'])}"aria-label="Previous">
-	              		<span aria-hidden="true">&laquo;</span>
-	              	</a>
-	            </li>
-	            <li class="page-item" th:each="p: ${#numbers.sequence(pi.startPage, pi.endPage)}">
-	            	<a class="page-link" th:href="@{${loc}(page=${p})}" th:if="${map['value'] == null}">[[${p}]]</a></li>
-	            	<a class="page-link" th:href="@{${loc}(page=${p}, value=${map['value']}, map['condition'])}" th:if="${map['value'] != null}">[[${p}]]</a></li>
-	            <li class="page-item">
-	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage+1})}"th:if="${map['value'] == null}" aria-label="Next">
-	            	<a class="page-link" th:href="@{${loc}(page=${pi.currentPage+1}, value=${map['value']}, map['condition'])}"th:if="${map['value'] != null}" aria-label="Next">
-	            		<span aria-hidden="true">&raquo;</span>
-	            	</a>
-	            </li>
-	    	</ul>
-        </nav>	
-        
-        
-        	
-        <!-- 검색기능 -->
-        <div style="display:inline; float:right;">
-        	<select class="form-select" style="display:inline; width:auto;">
-        		<option value="title" th:selected="${map['condition'] != null && map['condition'] == 'title'}">제목</option>
-        		<option value="writer"th:selected="${map['condition'] != null && map['condition'] == 'writer'}">작성자</option>
-        		<option value="content"th:selected="${map['condition'] != null && map['condition'] == 'content'}">내용</option>
-        	</select>
-        	<input type="search" class="form-control" th:value="${map['value]!= null ? map['value'] : ''}" placeholder="Search..." style="width:250px; display:inline;">
-        	<button class="btn btn-success" type="button" id="search">SEARCH</button>
-        </div>
-        
-        
-       	<button class="btn btn-outline-success" th:if="${session.loginUser}" type="button" onclick="location.href='/board/write'">WRITE BOARD</button>
+
+		<!-- 게시글 테이블 -->
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th width="80px">글 번호</th>
+					<th>글 제목</th>
+					<th width="130px">작성자</th>
+					<th width="130px">작성일자</th>
+					<th width="80px">조회수</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="b : ${list}">
+					<td th:text="${b.boardId}"></td>
+					<td th:text="${b.boardTitle}"></td>
+					<td th:text="${b.nickName}"></td>
+					<td th:text="${b.boardModifyDate}"></td>
+					<td th:text="${b.boardCount}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- 페이징 -->
+		<nav style="float: right;">
+			<ul class="pagination">
+				<!-- 이전 페이지 -->
+				<li class="page-item">
+					<a class="page-link"
+					   th:href="@{${loc}(page=${pi.currentPage-1})}"
+					   th:if="${map['value'] == null}"
+					   aria-label="Previous">&laquo;</a>
+
+					<a class="page-link"
+					   th:href="@{${loc}(page=${pi.currentPage-1}, value=${map['value']}, condition=${map['condition']})}"
+					   th:if="${map['value'] != null}"
+					   aria-label="Previous">&laquo;</a>
+				</li>
+
+				<!-- 페이지 번호 -->
+				<li class="page-item" th:each="p : ${#numbers.sequence(pi.startPage, pi.endPage)}">
+					<a class="page-link" th:href="@{${loc}(page=${p})}" th:if="${map['value'] == null}">[[${p}]]</a>
+					<a class="page-link" th:href="@{${loc}(page=${p}, value=${map['value']}, condition=${map['condition']})}" th:if="${map['value'] != null}">[[${p}]]</a>
+				</li>
+
+				<!-- 다음 페이지 -->
+				<li class="page-item">
+					<a class="page-link"
+					   th:href="@{${loc}(page=${pi.currentPage+1})}"
+					   th:if="${map['value'] == null}"
+					   aria-label="Next">&raquo;</a>
+
+					<a class="page-link"
+					   th:href="@{${loc}(page=${pi.currentPage+1}, value=${map['value']}, condition=${map['condition']})}"
+					   th:if="${map['value'] != null}"
+					   aria-label="Next">&raquo;</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- 검색 -->
+		<div style="display:inline; float:right;">
+			<select class="form-select" style="width:auto; display:inline;" name="condition">
+				<option value="title" th:selected="${map['condition'] == 'title'}">제목</option>
+				<option value="writer" th:selected="${map['condition'] == 'writer'}">작성자</option>
+				<option value="content" th:selected="${map['condition'] == 'content'}">내용</option>
+			</select>
+			<input type="search" class="form-control"
+				   th:value="${map['value'] != null ? map['value'] : ''}"
+				   placeholder="Search..."
+				   style="width:250px; display:inline;" name="value">
+			<button class="btn btn-success" type="button" id="search">SEARCH</button>
+		</div>
+
+		<!-- 글쓰기 버튼 -->
+		<button class="btn btn-outline-success" th:if="${session.loginUser}" type="button" onclick="location.href='/board/write'">WRITE BOARD</button>
 	</div>
-	
-	
+
 	<script th:inline="javascript">
-	//url : /board/(boardId)/(currentPage)
 		window.onload = () => {
-			const tbody = document.querySelector('tbody');
-			const tds = tbody.querySelectorAll('td');
-			for(const td of tds){
-				td.addEventListener('click',e => {
-					const trTds = e.target.parentElement.querySelectorAll('td');
-					const boardId = trTds[0].innerText;
-					location.href = '/board/' + boardId + '/' + /*<![CDATA[*//*[[${pi.currentPage}]]*/1/*]]>*/;
+			// 게시글 클릭
+			document.querySelectorAll('tbody tr').forEach(tr => {
+				tr.addEventListener('click', e => {
+					const boardId = tr.querySelector('td').innerText;
+					location.href = '/board/' + boardId + '/' + /*[[${pi.currentPage}]]*/ 1;
 				});
-			}
-			
-			document.getElementById('search').addEventListener('click', e => {
-				const valueInpt = e.target.previousElementSibling; 
-				const conditionSelect = valueInput.previousElementSibling;
-				location.href='/board/search?value=' + valueInput.value + '&condition=' + conditionSelect.value;
 			});
-			
-		}
+
+			// 검색 버튼
+			document.getElementById('search').addEventListener('click', e => {
+				const valueInput = e.target.previousElementSibling;
+				const conditionSelect = valueInput.previousElementSibling;
+				location.href='/board/search?value=' + encodeURIComponent(valueInput.value)
+					+ '&condition=' + encodeURIComponent(conditionSelect.value);
+			});
+		};
 	</script>
 </body>
 </html>

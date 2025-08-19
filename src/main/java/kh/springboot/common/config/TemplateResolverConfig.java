@@ -36,6 +36,18 @@ public class TemplateResolverConfig {
 		bResolver.setCheckExistence(true); 
 		return bResolver;
 	}
+	@Bean 
+	public ClassLoaderTemplateResolver adminResolver() {
+		ClassLoaderTemplateResolver adminResolver = new ClassLoaderTemplateResolver();
+		
+		adminResolver.setPrefix("templates/views/admin/"); 
+		adminResolver.setSuffix(".html");
+		adminResolver.setTemplateMode(TemplateMode.HTML);
+		adminResolver.setCharacterEncoding("UTF-8");
+		adminResolver.setCacheable(false); 
+		adminResolver.setCheckExistence(true); 
+		return adminResolver;
+	}
 
 	
 	

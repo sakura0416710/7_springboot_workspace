@@ -1,9 +1,9 @@
 package kh.springboot.member.controller;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,13 +12,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
 import kh.springboot.HomeController;
 import kh.springboot.board.model.exception.BoardException;
@@ -26,11 +22,13 @@ import kh.springboot.member.model.exception.MemberException;
 import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller 
 @RequiredArgsConstructor //final이 붙은 상수나 @NonNull이 붙은 변수만 가지고 생성자 생성
 @SessionAttributes("loginUser")
 @RequestMapping("/member/") //공용 url
+@Slf4j   //Logger 어노테이션
 public class MemberController {
 
     private final HomeController homeController;
@@ -48,11 +46,13 @@ public class MemberController {
 	private final BCryptPasswordEncoder bcrypt;
 	//이메일 샌더 설정
 	private final JavaMailSender mailSender;
+	//log추가하기 : getLogger(사용하고 싶은 위치의 log를 불러오기)
+//	private Logger log = LoggerFactory.getLogger(MemberController.class);
 
 
 	
     @GetMapping("/signIn") //그냥 signIn이 맞을것 같지만 '/' 붙여도 됨.
-	public String signIn() {
+	public String signIn(Model model) {
 		return "login";
 	}
 	
@@ -112,8 +112,21 @@ public class MemberController {
 	
 	//회원 등록(뷰 보여주기 viewResolver->view)
 	@GetMapping("enroll")
-	public String insertMember() {
-		return ("enroll");
+	public String enroll(Model model) {
+		log.info("회원가입페이지");
+		log.debug("회원가입페이지");
+		log.trace("회원가입페이지");
+		log.error("회원가입페이지");
+		//log4j의 로그레벨 파라미터 : debug < info < warn < error < fatal (5단계)
+		// 설정한 level 속성 이상만이 화면에 보이게 된다.
+		//fatal : 아주 심각한 에러
+		//error : 어떤 요청 처리 중 문제 발생
+		//warn : 프로그램 실행에는 문제 없지만, 향후 시스템 에러의 원인이 될 수 있는 경고성 메세지
+		//info : 상태변경과 같은 정보성 메세지
+		//debug: 개발 시 디버그 용도로 사용하는 메세지
+		//trace : 디버그 레벨이 너무 광범위한 것을 해결하기 위해 좀 더 상세한 이벤트(ex.경로추적)을 나타냄
+		
+		return "enroll";
 	}
 	// 값 받아오기
 	@PostMapping("enroll")
@@ -138,18 +151,18 @@ public class MemberController {
 		
 	}
 //	암호화 후 로그인
-	@PostMapping("/signIn")
+/*	@PostMapping("/signIn")
 	public String login(Member m, HttpSession session){
 		Member loginUser = mService.login(m);
 		//로그인 유저가 있다면 (아이디 존재여부로 비교) 그 로그인 유저의 비번을 꺼내오겠다. (그게 db에 암호화돼서 있을거니까 그걸 꺼내오면 댐)
 		if(loginUser != null && bcrypt.matches(m.getPwd(),loginUser.getPwd())) {
 			session.setAttribute("loginUser", loginUser);//인자 두개 : rawPassword, encodedPassword
-			return "redirect:/home";
+			return "redirect:" + beforeURL;
 		} else {
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
 	} 		
-	
+	*/
 //	로그아웃 : session을 무효화시킨 뒤 home(경로 제시)으로 이동
 	@GetMapping("logout")
 	public String logout(HttpSession session) {
@@ -189,17 +202,22 @@ public class MemberController {
 /*	 암호화 후 로그인 + @SessionAttribute : 스프링부트가 제공하는 기능
 	model에 attribute가 추가될 때 자동으로 키 값을 찾아서 일치하는 키가 있으면 세션에 등록하는 기능
 	세션 영역에 저장은 하지만 로그아웃할 때 session.invalidate으로 무효화가 안돼서 로그아웃이 안됨.
-	이거에 맞는 로그아웃을 만들어야 함.
+	이거에 맞는 로그아웃을 만들어야 함.*/
 	@PostMapping("signIn")
-	public String login(Member m, Model model){
+	public String login(Member m,  Model model, @RequestParam("beforeURL")String beforeURL){
 		Member loginUser = mService.login(m);
 		if(loginUser != null && bcrypt.matches(m.getPwd(),loginUser.getPwd())) {
 			model.addAttribute("loginUser", loginUser);
-			return "redirect:/home";
+			if(loginUser.getIsAdmin().equals("N")) {
+				return "redirect:" + beforeURL;
+			} else {
+				return "redirect:/admin/home";
+			}
+			
 		} else {
 			throw new MemberException("로그인을 실패하였습니다.");
 		}
-	} 	*/		
+	} 	
 	
 /*	로그아웃 session.Attribute버전 		
 	@GetMapping("logout")
@@ -207,7 +225,7 @@ public class MemberController {
 		status.setComplete();
 		return "redirect:/home";
 	}	
-	*/
+	
 	
 	//내정보 수정
 	@GetMapping("/edit")
