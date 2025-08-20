@@ -1,6 +1,7 @@
 package kh.springboot.member.model.mapper;
 
 import kh.springboot.member.model.vo.Member;
+import kh.springboot.member.model.vo.TodoList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,5 +30,11 @@ public interface MemberMapper {
 	Member findPw(Member m);		*/
 
 	Member findInfo(Member m);
+
+	//todoList가져오기
+	ArrayList<TodoList> selectTodoList(String id);
+
+	//todoList추가하기
+	int insertTodoList(TodoList todoList);
 
 }

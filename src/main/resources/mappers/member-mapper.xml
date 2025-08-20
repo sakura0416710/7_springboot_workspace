@@ -89,10 +89,19 @@
    </select>
    
    
+  <!-- todoList 뽑아오기 -->
+  <select id="selectTodoList" resultType="TodoList">
+  	select * 
+  	from todo_list
+  	where writer = #{id}
+  	order by todo_num
+  </select>
    
-   
-   
-   
+   <!-- todoList추가하기 -->
+   <insert id="insertTodoList">
+   	insert into todo_list
+   	values(seq_lid.nextval, #{todo}, #{writer}, default,default)
+   </insert>
    
    
    

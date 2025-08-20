@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -21,6 +22,7 @@ import kh.springboot.board.model.exception.BoardException;
 import kh.springboot.member.model.exception.MemberException;
 import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
+import kh.springboot.member.model.vo.TodoList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -191,11 +193,24 @@ public class MemberController {
 		Member loginUser = (Member)session.getAttribute("loginUser");
 		if(loginUser != null) {
 			String id = loginUser.getId();
+			//vo가 없는 경우의 list
 			ArrayList<HashMap <String, Object>> list = mService.selectMyList(id); 
+			
+			//Todo List가져오기
+			ArrayList<TodoList> todoList = mService.selectTodoList(id);
+			
+			mv.addObject("todoList", todoList);
 			mv.addObject("list", list);
 			mv.setViewName("myInfo");
 		}
 		return mv;
+	}
+	
+	@GetMapping("linsert")
+	@ResponseBody
+	public int insertTodoList(
+			@ModelAttribute TodoList todoList) {
+		return mService.insertTodoList(todoList);
 	}
 	
 	
