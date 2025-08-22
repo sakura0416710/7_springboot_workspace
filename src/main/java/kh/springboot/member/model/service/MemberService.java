@@ -71,4 +71,13 @@ public class MemberService {
 	public int insertTodoList(TodoList todoList) {
 		return mapper.insertTodoList(todoList);
 	}
+	
+	//todoList 삭제하기
+	public int deleteTodoList(int num) {
+		return mapper.deleteTodoList(num);
+	}
+	//todoList수정
+	public int updateTodoList(TodoList todoList) {
+		return mapper.updateTodoList(todoList);
+	}
 }

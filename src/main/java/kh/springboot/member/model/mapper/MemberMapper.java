@@ -37,4 +37,9 @@ public interface MemberMapper {
 	//todoList추가하기
 	int insertTodoList(TodoList todoList);
 
+	//todoList삭제하기
+	int deleteTodoList(int num);
+
+	int updateTodoList(TodoList todoList);
+
 }

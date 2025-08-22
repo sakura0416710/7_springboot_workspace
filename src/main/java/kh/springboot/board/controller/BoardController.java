@@ -131,44 +131,6 @@ public class BoardController {
 	}
 
 	
-	
-	@GetMapping(value = "top",produces="application/json; charset=UTF-8")//response의 contentType을 제어함
-	@ResponseBody
-	public String selectTop(HttpServletResponse response){
-		ArrayList<Board> topList = bService.selectTop();
-		
-		//json 버전
-		//Board = >JSONObject, arrayList => JSONArray
-		JSONArray array = new JSONArray();
-		for (Board b : topList) {
-			JSONObject json = new JSONObject();
-			json.put("boardId", b.getBoardId());
-			json.put("boardTitle", b.getBoardTitle());
-			json.put("nickName", b.getNickName());
-			json.put("boardModifyDate", b.getBoardModifyDate());
-			json.put("boardCount",b.getBoardCount());
-			
-			array.put(json); //지원하는 라이브러리 종류에 따라 메소드, Date지원도 됨 (예전에는 add, date지원 안됏음. 그건json simple)
-			
-		}
-		//response.setContentType("application/json; charset=UTF-8");
-		return array.toString();	
-		
-		
-		/*GSON버전
-		Gson gson = new Gson();
-		response.setContentType("application/json; charset=UTF-8");
-		gson = new GsonBuilder() .setDateFormat("yyyy-MM-dd").create();
-		try {
-			gson.toJson(topList, response.getWriter());
-		} catch (JsonIOException | IOException e) {
-			e.printStackTrace();
-		}		*/
-		
-	}
-	
-	
-	
 	/*댓글 등록(JSON버전)
 	@PostMapping(value = "rinsert", produces="application/json; charset=UTF-8")
 	@ResponseBody
@@ -207,42 +169,9 @@ public class BoardController {
 		
 	}				*/
 	
-	//댓글등록 jackson버전 : springboot에서 자동으로 라이브러리 제공
-	//
-	@GetMapping(value = "rinsert", produces="application/json; charset=UTF-8")
-	@ResponseBody
-	public String insertReply(@ModelAttribute Reply r/*, HttpServletResponse response*/) {
-		int result = bService.insertReply(r);
-		ArrayList<Reply> list = bService.selectReplyList(r.getRefBoardId());
-		
-		ObjectMapper om = new ObjectMapper(); //내가 String으로 값을 쓰겠다.
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		om.setDateFormat(sdf);
-		String str = null;
-		try {
-			str = om.writeValueAsString(list);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		} 
-		//response.setContentType("application/json; charset=UTF-8"); 둘다됨 !
-		return str;
-		
-	}
+
 	
-	//댓글 삭제
-	@GetMapping(value="rdelete", produces="application/json; charset=UTF-8")
-	@ResponseBody
-	public int deleteReply(@RequestParam("rId")int rId) {
-		return bService.deleteReply(rId);
-		
-		
-	}
-	//댓글 수정(rId랑 replyContent를 reply r에 (객체만든거)담아서 보내기)
-	@GetMapping("rupdate")
-	public int updateReply(@ModelAttribute Reply r) {
-		return bService.updateReply(r);
-	}
+
 	/*게시글 검색
 	@GetMapping("search")
 	public String searchBoard(@RequestParam(value="page", defaultValue="1")int currentPage, 

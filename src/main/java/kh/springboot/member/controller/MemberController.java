@@ -46,13 +46,11 @@ public class MemberController {
 	
 	//암호화 설정파일 주입받아오기 (생성자 주입)
 	private final BCryptPasswordEncoder bcrypt;
-	//이메일 샌더 설정
-	private final JavaMailSender mailSender;
+
 	//log추가하기 : getLogger(사용하고 싶은 위치의 log를 불러오기)
 //	private Logger log = LoggerFactory.getLogger(MemberController.class);
 
 
-	
     @GetMapping("/signIn") //그냥 signIn이 맞을것 같지만 '/' 붙여도 됨.
 	public String signIn(Model model) {
 		return "login";
@@ -186,8 +184,9 @@ public class MemberController {
 		return "views/member/myInfo";
 	}*/
 	
-	//2.ModelAndView객체 이용하기: Model + View
-	//model에 데이터를 저장하고 view에 forward할 뷰 정보를담음.
+	//2.ModelAndView객체 이용하기: Model + View (model에 데이터를 저장하고 view에 forward할 뷰 정보까지 보여줌)
+	
+	//TodoList합친 myInfo
 	@GetMapping("myInfo")
 	public ModelAndView myInfo(HttpSession session, ModelAndView mv) {
 		Member loginUser = (Member)session.getAttribute("loginUser");
@@ -204,13 +203,6 @@ public class MemberController {
 			mv.setViewName("myInfo");
 		}
 		return mv;
-	}
-	
-	@GetMapping("linsert")
-	@ResponseBody
-	public int insertTodoList(
-			@ModelAttribute TodoList todoList) {
-		return mService.insertTodoList(todoList);
 	}
 	
 	
@@ -299,55 +291,7 @@ public class MemberController {
 		return "redirect:/home";
 	}
 	
-	
-	//아이디 중복 확인 
-	@GetMapping("checkValue")
-	@ResponseBody //메서드 리턴값을 view가 아니라 HTTP응답 바디에 직접 쓰겠다. =>ajax요청을 처리해서 json, int등 반환(문자열, 숫자 등 데이터 등을 그대로 응답한다API처럼)
-	public int checkValue (@RequestParam("value")String value,
-							@RequestParam("column")String column) {
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("col", column);
-		map.put("val", value);
 
-		return mService.checkValue(map); //0, 아님 1을 반환해서 ajax로 보냄
-		
-	}
-	
-	
-	//이메일 인증
-	@GetMapping("echeck")
-	@ResponseBody
-	public String checkEmail(@RequestParam("email")String email) {
-		MimeMessage mimeMessage = mailSender.createMimeMessage();
-		
-		//수신자, 제목, 본문 설정
-		String subject = "[SpringBoot] 이메일 확인";
-		String body = "<h1 align = 'center'>SpringBoot 이메일 확인</h1><br>";
-		body += "<div style='border : 5px solid yellowgreen; text-align: center; font-size:25px;'>";
-		body += "본 메일은 이메일 확인하기 위해 발송되었습니다.<br>";
-		body += "아래 숫자를 인증번호 확인란에 작성하여 확인해주시기 바랍니다.<br><br>";
-	
-		//랜덤 숫자 5개뽑기 : 이 방법은 안됨Math.random()* 100000 + 1; //0 <= N < 100000 : 0 ~ 99999.99999999999999
-		String random = ""; //null로 초기화 불가. random이라는 변수에 한 숫자씩 이어붙여서 5자리를 만들 것임. += 연산자로 이어붙일건데
-							//null로 해버리면 null7604이런 식으로 붙여짐.
-		for(int i = 0; i<5; i++) {
-			random += (int)(Math.random()*10);
-		}
-		body += "<span stlye='font-size:30px; text-decoration:underline;'><b>" + random + "</b><span><br></div>";
-		
-		MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
-		try {
-			mimeMessageHelper.setTo(email);
-			mimeMessageHelper.setSubject(subject);
-			mimeMessageHelper.setText(body, true);
-		} catch (MessagingException e) {
-			e.printStackTrace();
-		}
-		mailSender.send(mimeMessage); //메일 발송
-		return random;				  //보낸 랜덤값 
-	
-	}
-	
 	//아이디, 비밀번호 찾기
 	@GetMapping("findIDPW")
 	public String findIDPW() {

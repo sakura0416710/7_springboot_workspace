@@ -134,7 +134,8 @@
 		/*<![CDATA[*/
 		document.getElementById('replySubmit').addEventListener('click' , () => {
 			$.ajax({
-				url: '/board/rinsert',
+				url: '/board/reply',
+				type:'post',
 				data : {
 					replyContent:document.getElementById('replyContent').value,
 					refBoardId:/*[[${b.boardId}]]*/1,
@@ -247,7 +248,8 @@
 					}else if(targetSVG.className.baseVal.includes('trash')){
 						if(confirm('정말 삭제하시겠습니까?')){
 							$.ajax({
-								url : '/board/rdelete',
+								url : '/board/reply',
+								type:'delete',
 								data : {rId:replyId},
 								success : data => {
 									if(data == 1){
@@ -263,7 +265,8 @@
 					}else if(targetSVG.className.baseVal.includes('check')){
 						//수정진행 -> 완료		
 						$.ajax({
-							url: '/board/rupdate',
+							url: '/board/reply',
+							type:'put',
 							data:{rId:replyId, replyContent:contentTd.children[0].value},
 							//contentTd안의 textarea안 >children(배열로 나옴).[0] 의 value에 접근해야 속성에 접근 가능.
 							success : data=>{

@@ -99,10 +99,20 @@
    
    <!-- todoList추가하기 -->
    <insert id="insertTodoList">
+   		<selectKey keyProperty="todoNum" order="BEFORE" resultType="_int">
+   			select seq_lid.nextval from dual
+   		</selectKey>
    	insert into todo_list
    	values(seq_lid.nextval, #{todo}, #{writer}, default,default)
    </insert>
    
+   <!-- todoList삭제하기 -->
+   <delete id="deleteTodoList">
+   delete from todo_list where todo_num = #{num}
+   </delete>
    
-   
+   <!-- update -->
+   <update id="updateTodoList">
+   update todo_list set todo = #{todo} where todo_num = #{todoNum}
+   </update>
 </mapper>
