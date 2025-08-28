@@ -80,4 +80,9 @@ public class MemberService {
 	public int updateTodoList(TodoList todoList) {
 		return mapper.updateTodoList(todoList);
 	}
+	
+	//프로필 사진 등록
+	public int updateProfile(Member m) {
+		return mapper.updateProfile(m);
+	}
 }

@@ -42,4 +42,7 @@ public interface MemberMapper {
 
 	int updateTodoList(TodoList todoList);
 
+	//프사 등록
+	int updateProfile(Member m);
+
 }

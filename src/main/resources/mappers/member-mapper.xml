@@ -111,8 +111,13 @@
    delete from todo_list where todo_num = #{num}
    </delete>
    
-   <!-- update -->
+   <!-- update todoList -->
    <update id="updateTodoList">
    update todo_list set todo = #{todo} where todo_num = #{todoNum}
    </update>
+   <update id="updateProfile">
+   update member set profile = #{profile} where id = #{id}
+   </update>
+   
+   
 </mapper>

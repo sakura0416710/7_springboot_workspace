@@ -49,6 +49,21 @@ span ~button {
 			<div class="p-5 mb-4 bg-light rounded-3" style="display: flex;">
 				<div class="container-fluid py-5"
 					style="height: 100%; width: 65%; display: inline-block;">
+					<div style="width:100px; height:100px; float:left; margin-right:50px;
+						border: 2px dashed black; border-radious:50%; overflow:hidden; 
+						cursor:pointer;" data-bs-toggle="dropdown">
+					</div>
+						<img th:if="${session.loginUser.profile == null}" src="/image/no_image.png" width="100%" height="100%"/>
+						<img th:if="${session.loginUser.profile != null}" src="@{/}+${session.loginUser.profile}" width="100%" height="100%"/>
+					
+					
+					<input type="file" accept="image/*" style="display:none;" onchange="loadImage(this);"/>
+					<ul class="dropdown-menu dropdown-menu-end shadow">
+						<li><button class="dropdown-item">프로필 변경하기</button></li>
+						<li><button class="dropdown-item">프로필 삭제하기</button></li>
+					</ul>
+					
+					
 					<h1 class="display-5 fw-bold">
 						<abbr title="if you click this, you can go main page(/home).">
 							<a href="/home">[[${session.loginUser.nickName}]]'s
@@ -246,6 +261,44 @@ span ~button {
 	</div>
 
 	<script th:inline="javascript">
+	
+		const loadImage = file => {
+			//console.log(file);
+			
+			//프로필 preview
+			let imgFile = null;
+			const reader = new FileReader();
+			reader.addEventListener('load', function(){
+				file.previousElementSibling.children[0].sthis.result;
+			});
+			const imgFile= file.files[0];
+			reader.readAsDataURL(imgFile);
+			
+			//프로필 서버에 넘기기
+			const formData = new formData();
+			$.ajax({
+				url : 'member/profile',
+				type:'put',
+				data : formData,
+				processData : false, //data를 spring으로 변환할까? --아니
+				contentType:  false, //전달하는 데이터 형식
+				success : data =>{
+					console.log(data)
+					if(data != 1){
+						alert('프로필 변경 실패');
+						location.reload();
+					}
+					if(imgFile == null){
+						document.querySelector('.container-fluid.py-5 img').src = '/image/no_image.png';
+						
+					}
+				},
+				error : data => console.log(data)
+			});
+			
+			
+			
+		}
 		window.onload = () => {
 			// 로그인이 안 되어 있으면 로그인 후 이용해달라는 alert창 띄운 후 로그인 화면으로 
 			// natural template : 파일로 열 때도 에러가 없게해서 보기가능
@@ -508,11 +561,15 @@ span ~button {
 				}
 			 
 			*/
+			document.querySelector('.container-fluid.py-5>div').addEventListener('click',function(){
+				document.querySelector('input[type=file].')
+			});
+				
+		
+			
+			}
 			
 			
-			
-			
-			}	
 		
 		
 		

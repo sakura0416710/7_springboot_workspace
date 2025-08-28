@@ -1,22 +1,33 @@
 package kh.springboot.ajax.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,12 +39,14 @@ import kh.springboot.board.model.service.BoardService;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.Reply;
 import kh.springboot.member.model.service.MemberService;
+import kh.springboot.member.model.vo.Member;
 import kh.springboot.member.model.vo.TodoList;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping({"/member","/board"})
+@SessionAttributes("loginUser")
 
 public class AjaxController {
 	/*
@@ -194,9 +207,105 @@ public class AjaxController {
 			return bService.updateReply(r);
 		}
 	
+		
+		@PutMapping("profile")
+		public int updateProfile(@RequestParam("profile")MultipartFile profile, Model model) {
+			Member m = (Member)model.getAttribute("loginUser");
+			String savePath = "C:\\profiles";
+			File folder = new File(savePath);
+			if(!folder.exists()) {
+				folder.mkdirs();
+			}
+			if(m.getProfile() != null) {
+				File f = new File(savePath + "\\" + m.getProfile());
+				f.delete();
+			}
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			int ranNum = (int)(Math.random() * 100000);
+			String originalFileName = profile.getOriginalFilename();
+			String renameFileName = sdf.format(new Date()) + ranNum + 
+								originalFileName.substring(originalFileName.lastIndexOf("."));
+			
+			try {
+				profile.transferTo(new File(folder + "\\" + renameFileName));
+			} catch (IllegalStateException| IOException e) {
+				e.printStackTrace();
+			}
+			m.setProfile(renameFileName);
+			
+			int result = mService.updateProfile(m);
+			if(result > 0 ) {
+				model.addAttribute("loginUser", m);
+			}
+			return result;
+		}
+		
+		//날씨 API
+		
+		@GetMapping("weather")
+		public String getWeather() {
+			StringBuilder sb = new StringBuilder();
+			try {
+			StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"); /*URL*/
+	        urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=6e6e555fe67d33cdf8fffb0c90e6e303ff3b6b62654acb51f1716157e1ae044f"); /*Service Key*/
+	        urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
+	        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("1000", "UTF-8")); /*한 페이지 결과 수*/
+	        urlBuilder.append("&" + URLEncoder.encode("dataType","UTF-8") + "=" + URLEncoder.encode("JSON", "UTF-8")); /*요청자료형식(XML/JSON) Default: XML*/
+	        
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HHmm");
+	        String now = sdf.format(new Date());
+	        String[] dayTime = now.split(" "); //공백으로 잘라주기
+	        urlBuilder.append("&" + URLEncoder.encode("base_date","UTF-8") + "=" + URLEncoder.encode(dayTime[0], "UTF-8")); /*‘21년 6월 28일발표*/
+	        
+	        int[] baseTime = {200, 500, 800, 1100, 1400, 2000, 2300};
+	        int index = -1;
+	        for(int i = 0; i < baseTime.length; i++) {
+	        	if(Integer.parseInt(dayTime[1]) <= baseTime[i]){
+	        		index = i-1; //현재의 시간 중 가장 가까운 과거 시간 찾기
+	        		
+	        		if(i == 0) {
+	        			index = i;
+	        		}
+	        		
+	        		dayTime[1] = ("0" + baseTime[index]).substring(("0" + baseTime[index]).length()-4);
+	        		break;
+	        	}
+	        
+	    
+			}
+	        if(index == -1) {
+	        	dayTime[1] = "2300";
+	        }
+	        
+	        urlBuilder.append("&" + URLEncoder.encode("base_time","UTF-8") + "=" + URLEncoder.encode(dayTime[1], "UTF-8")); /*05시 발표*/
+	        urlBuilder.append("&" + URLEncoder.encode("nx","UTF-8") + "=" + URLEncoder.encode("60", "UTF-8")); /*예보지점의 X 좌표값*/
+	        urlBuilder.append("&" + URLEncoder.encode("ny","UTF-8") + "=" + URLEncoder.encode("127", "UTF-8")); /*예보지점의 Y 좌표값*/
+	       
+	        //URL url = new URL(urlBuilder.toString());
+	        URL url = (new URI(urlBuilder.toString())).toURL();
+	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn.setRequestMethod("GET");
+	        conn.setRequestProperty("Content-type", "application/json");
+	        //System.out.println("Response code: " + conn.getResponseCode());
+	        BufferedReader rd;
+	        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+	            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	        } else {
+	            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+	        }
+	        String line;
+	        while ((line = rd.readLine()) != null) {
+	            sb.append(line);
+	        }
+	        rd.close();
+	        conn.disconnect();
+	        
+	    
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+			return sb.toString();
 	
-	
-	
-	
+		}
 	
 }
