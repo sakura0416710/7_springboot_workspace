@@ -1,4 +1,5 @@
 import './Adminbar.css';
+import { Link } from 'react-router-dom';
 
 const Adminbar = () =>{
    
@@ -9,38 +10,38 @@ const Adminbar = () =>{
 			<div className="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
 				<ul className="nav flex-column">
 					<li className="nav-item">
-						<a className="nav-link d-flex align-items-center gap-2 active" aria-current="page" href="/admin/home"> 
+						<Link className="nav-link d-flex align-items-center gap-2" to="/"> 
 							<svg className="bi">
 								<use xlinkHref="#house-fill" />
 							</svg> Dashboard
-						</a>
+						</Link>
 					</li>
 					<li className="nav-item">
-						<a className="nav-link d-flex align-items-center gap-2" href="/admin/members"> 
+						<Link className="nav-link d-flex align-items-center gap-2" to="/members"> 
 							<svg className="bi">
 								<use xlinkHref="#people" />
 							</svg> Members
-						</a>
+						</Link>
 					</li>
 					<li className="nav-item">
-						<a className="nav-link d-flex align-items-center gap-2" href="/admin/boards">
+						<Link className="nav-link d-flex align-items-center gap-2" to="/boards">
 							<svg className="bi">
 								<use xlinkHref="#file-earmark-text" />
 							</svg> General Board
-						</a>
+						</Link>
 					</li>
 					<li className="nav-item">
-						<a className="nav-link d-flex align-items-center gap-2" href="/admin/attms">
+						<Link className="nav-link d-flex align-items-center gap-2" to="/attms">
 							<svg className="bi">
 								<use xlinkHref="#puzzle" />
 							</svg> Attachment Board
-						</a>
+						</Link>
 					</li>
 				</ul>
 				<hr className="my-3"></hr>
 				<ul className="nav flex-column mb-auto">
 					<li className="nav-item">
-						<a className="nav-link d-flex align-items-center gap-2" href="/admin/logout"> 
+						<a className="nav-link d-flex align-items-center gap-2" href="http://localhost:8080/member/logout"> 
 							<svg className="bi">
 								<use xlinkHref="#door-closed" />
 							</svg> Sign out

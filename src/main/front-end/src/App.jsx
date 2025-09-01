@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react"
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AdminProvider } from './context/AdminContext';
 import AdminMain from './layouts/AdminMain';
+import Dashboard from './pages/Dashboard';
 
 
 function App() {
@@ -58,8 +61,22 @@ function App() {
   //   </div>
   // );
 
-  return(
-    <AdminMain/>
+  
+  return( //라우팅 설정 (라우트 안에 또 라우트 : Nested Route)
+    <AdminProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AdminMain/>}>
+            <Route index element={<Dashboard/>}/>
+            <Route path="members" element={<MembersManagement/>}/>
+            <Route path="boards" element={<BoardsManagement/>}/>
+            <Route path="attms" element={<AttmsManagement/>}/>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <AdminMain/>
+    </AdminProvider>
+    
   );
   
 }

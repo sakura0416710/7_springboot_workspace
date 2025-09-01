@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import kh.springboot.board.model.service.BoardService;
 import kh.springboot.board.model.vo.Board;
 import kh.springboot.board.model.vo.Reply;
@@ -45,7 +46,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({"/member","/board"})
+@RequestMapping({"/member","/board", "/admin"})
 @SessionAttributes("loginUser")
 
 public class AjaxController {
@@ -307,5 +308,11 @@ public class AjaxController {
 			return sb.toString();
 	
 		}
-	
+
+		
+		//관리자 차등(상급관리자1, 하급관리자2 :회원관리빼고)
+		@GetMapping("users")
+		public Member getAdmin(HttpSession session) {
+			return (Member)session.getAttribute("loginUser");
+		}
 }

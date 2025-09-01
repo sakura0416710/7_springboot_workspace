@@ -16,8 +16,16 @@ public class adminLoginInterceptor implements HandlerInterceptor{
 		Member loginUser = (Member)session.getAttribute("loginUser");
 		
 		if(loginUser == null || loginUser.getIsAdmin().equals("N")) {
-			response.setContentType("text/html; charset=UTF-8");
-			response.getWriter().write("<script> alert('접근권한이 없습니다.'); location.href='/home';</script>");
+			
+			System.out.println(request.getHeader("fetch"));
+			if("true".equals(request.getHeader("fetch"))) {
+				response.setContentType("application/json; charset=UTF-8");
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN); //접근 금지:403코드
+			} else {
+				response.setContentType("text/html; charset=UTF-8");
+				response.getWriter().write("<script> alert('접근권한이 없습니다.'); location.href='/home';</script>");
+			}
+			
 			return false;
 		}
 		
