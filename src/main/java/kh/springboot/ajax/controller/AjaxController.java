@@ -2,6 +2,7 @@ package kh.springboot.ajax.controller;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -12,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -315,4 +318,72 @@ public class AjaxController {
 		public Member getAdmin(HttpSession session) {
 			return (Member)session.getAttribute("loginUser");
 		}
+		
+		//리액트에서 DashBoard ->log
+		@GetMapping("logs")
+		public TreeMap<String, Integer> getLogs() {
+			File f = new File("D:/logs/member/");
+			File[] files = f.listFiles(); //모든 파일을 불러오는 메소드
+			TreeMap<String, Integer> dateCount = new TreeMap<String, Integer>(); //{날짜, 몇 회}
+			BufferedReader br = null;
+			
+			try {
+				for(File file : files) {
+					br = new BufferedReader(new FileReader(file)); //Buffered- : 보조스트림 =>안에 기반스트림 가지기
+					String data;
+					while((data = br.readLine()) != null) {
+						String date = data.split(" ")[0]; //25-08-20 09:30:46 [DEBUG] k.s.c.i.LogInterceptor.afterCompletion>21 - user02 
+						if(!dateCount.containsKey(date)) {
+							dateCount.put(date, 1); //날짜가 존재하지 않으면 1추가
+						} else { //날짜가 존재할 경우
+							dateCount.put(date, dateCount.get(date)+1);
+						}
+					
+					}
+				} 
+			}catch (IOException e) {
+					e.printStackTrace();  //treeMap : key-value,자동정렬 제공
+			} finally {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return dateCount; //HttpMessageConverter 
+			//기본문자 : StringHttpMessageConverter
+			// 객체 : MappingJackson2HttpMessageConverter
+			
+		}
+		
+		@GetMapping("members")
+		public ArrayList<Member>selectMembers(Model model){
+			String id = ((Member)model.getAttribute("loginUser")).getId();
+			return mService.selectMembers(id);
+		}
+		@PutMapping("members")
+		public int updateMember(
+				@RequestBody HashMap<String, String> map) {
+			//HashMap<>에 col, value, id 담아서 가져오기(fetch로 보냈으므로 받을 때 RequestParam이 
+			// 아니라 RequestBody로 받아와야 함.
+			if(map.get("col").equals("nickName")) {
+				int count = mService.checkValue(map); //닉네임 중복 검사하기
+				if(count != 0) {
+					return -1;
+				} else if(map.get("col").equals("memberStatus") || map.get("col").equals("isAdmin")) {
+					map.put("col", map.get("col").equals("memberStatus")? "member_status" : "isAdmin");
+				}
+				
+			} return mService.updateMemberItem(map);
+
+		}
+		 
+		
+		
+		
+		
+		
+		
+		
+		
 }

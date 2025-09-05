@@ -45,4 +45,10 @@ public interface MemberMapper {
 	//프사 등록
 	int updateProfile(Member m);
 
+	//멤버리스트 가져오기 - mapper.xml에 써야댐
+	ArrayList<Member> selectMembers(String id);
+
+	//멤버 수정하기
+	int updateMemberItem(HashMap<String, String> map);
+
 }

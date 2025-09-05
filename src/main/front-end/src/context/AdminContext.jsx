@@ -24,7 +24,7 @@ export const AdminProvider = ({children}) => {
             credentials: 'include', //어떤 인증 정보를 포함할 것인가 (sang-origin:같은 오리진 include:다른 포트번호(cross)까지 쿠키나 헤더를 집어넣음))
             headers: { fetch: true }   //{리액트로 보낼 때 구분할 수 있는 key이름: value} ex.{hi:1111}도 됨
         })  //session이 여러 개 일때 세션 구분하기 = JSESSIONID
-            .then(res => {
+            .then(res => {                                                      
                 if (res.status == 403) {
                     //admin이 아니란 뜻이므로
                     alert('접근 권한이 없습니다.');

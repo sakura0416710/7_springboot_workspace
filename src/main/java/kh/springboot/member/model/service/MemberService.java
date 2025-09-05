@@ -85,4 +85,14 @@ public class MemberService {
 	public int updateProfile(Member m) {
 		return mapper.updateProfile(m);
 	}
+	
+	//멤버 리스트 불러오기
+	public ArrayList<Member> selectMembers(String id) {
+		return mapper.selectMembers(id);
+	}
+	
+	//멤버 정보 수정
+	public int updateMemberItem(HashMap<String, String> map) {
+		return mapper.updateMemberItem(map);
+	}
 }

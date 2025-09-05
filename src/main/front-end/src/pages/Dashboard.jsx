@@ -1,3 +1,5 @@
+import ChartSection from "../components/ChartSection";
+
 const Dashboard = () => {
 
     return (
@@ -6,13 +8,10 @@ const Dashboard = () => {
                 <h1 className="h2">Admin DashBoard</h1>
             </div>
 
-            <h4>최근 일주일 로그인 수</h4>
-            <canvas className="my-4 w-100" id="sevenDays" width="900" height="250"></canvas>
-
+            <ChartSection title="최근 일주일 로그인 수" type="seven"/>
             <br />
 
-            <h4>모든 날짜 로그인 수</h4>
-            <canvas className="my-4 w-100" id="allDays" width="900" height="250"></canvas>
+            <ChartSection title="모든 날짜 로그인 수" type="all"/>
 
             <br></br>
 

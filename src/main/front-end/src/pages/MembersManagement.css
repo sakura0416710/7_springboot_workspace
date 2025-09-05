@@ -1,0 +1,9 @@
+.info{font-size:12px}
+.table td{cursor : pointer}
+.table td>div{border:1px solid black; height : 80%; width:45%; display: inline-block; padding}
+.select{background-color:lightgray;}
+.vibration{animation : vibration 0.1s infinite}
+@keyframes .vibration{
+    from{transform: rotate(1deg);}
+    to(transform :)
+}

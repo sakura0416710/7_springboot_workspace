@@ -119,5 +119,15 @@
    update member set profile = #{profile} where id = #{id}
    </update>
    
+   <!-- 멤버리스트불러오기 -->
+   <select id="selectMembers">
+   select * from member where id != #{id}
+   </select>
+   
+   
+   <!-- 멤버 수정하기 -->
+   <update id="updateMemberItem" parameterType="map">
+   	update member set ${col} = #{val} where id = #{id}
+   </update>
    
 </mapper>
