@@ -37,11 +37,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import kh.springboot.board.model.exception.BoardException;
 import kh.springboot.board.model.service.BoardService;
+import kh.springboot.board.model.vo.Attachment;
 import kh.springboot.board.model.vo.Board;
+import kh.springboot.board.model.vo.PageInfo;
 import kh.springboot.board.model.vo.Reply;
+import kh.springboot.common.Pagination;
 import kh.springboot.member.model.service.MemberService;
 import kh.springboot.member.model.vo.Member;
 import kh.springboot.member.model.vo.TodoList;
@@ -377,9 +382,49 @@ public class AjaxController {
 			} return mService.updateMemberItem(map);
 
 		}
-		 
 		
+		@GetMapping("boards")
+		public HashMap<String, Object> selectBoards(
+				@RequestParam(value="page", defaultValue="1")int currentPage,
+				@RequestParam HashMap<String, String> map) {
+			map.put("i", "-1");
+			int listCount = bService.getListCount(map); //-1은 관리자, 여기에 절댓값 씌우기
+			PageInfo pi = Pagination.getPageInfo(currentPage, listCount, 10);
+			ArrayList<Board> list = bService.selectBoardList(pi, map);
+			
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			data.put("pi", pi);
+			data.put("list", list);
+			
+			return data;
+			
+		}
+		@PutMapping("status")
+		public int updateBoardsStatus(@RequestBody HashMap<String, Object> map) {
+			return bService.updateBoardStatus(map);
+		}
 		
+		//Attm GetMapping
+		@GetMapping("attms")
+		public HashMap<String, Object> selectList(
+				@RequestParam(value="page",defaultValue="1")int currentPage,
+				Model model, HttpServletRequest request ) {
+			HashMap<String, String>map = new HashMap<String, String>();
+			map.put("i", "-2");
+			int listCount = bService.getListCount(map);
+			PageInfo pi = Pagination.getPageInfo(currentPage, listCount, 9); 
+			
+			ArrayList<Board> bList = bService.selectBoardList(pi,map);
+			ArrayList<Attachment> aList = bService.selectAllAttms(); 
+			
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			data.put("bList", bList);
+			data.put("aList",aList);
+			data.put("pi", pi);
+			return data;
+			
+			
+		}
 		
 		
 		

@@ -68,6 +68,10 @@ public interface BoardMapper {
 	//댓글 수정하기
 	int updateReply(Reply r);
 
+	int updateBoardStatus(HashMap<String, Object> map);
+
+	ArrayList<Attachment> selectAllAttms();
+
 	
 
 }

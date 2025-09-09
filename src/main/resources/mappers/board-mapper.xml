@@ -7,7 +7,10 @@
   <select id="getListCount" resultType="_int">
   	select count(*) from board
   	join member on (board_writer = id)
-  	where board_type=#{i} and board_status='Y'
+  	where board_type=abs(#{i}) 
+  	<if test="i > 0">
+  		and board_status='Y'
+  	</if>
   	<if test="value != null">
   		<!-- 부분만 있어도 검색가능하도록 -->
   		<choose>
@@ -27,7 +30,10 @@
   select *
   from board
   		join member on(board_writer=id)
-  where board_status = 'Y' and board_type=#{i}
+  where board_type=abs(#{i})
+  <if test=" i > 0">
+  	and board_status = 'Y'
+  </if>
   <if test="value != null">
   		<!-- 부분만 있어도 검색가능하도록 -->
   		<choose>
@@ -195,6 +201,31 @@
   	where reply_id = #{rId}
   </update>
   
+  <update id="updateBoardStatus">
+  	update board
+  	set board_status = #{status}
+  	where board_id = #{id}
+  </update>
+  
+  <select id="selectAllAttms" resultType="_int">
+  	select count(*) from board
+  	join member on (board_writer = id)
+  	where board_type=abs(#{i}) 
+  	<if test="i > 0">
+  		and board_status='Y'
+  	</if>
+  	<if test="value != null">
+  		<!-- 부분만 있어도 검색가능하도록 -->
+  		<choose>
+  			<when test="condition == 'title' or condition == 'content'">
+  				and board_${condition} like '%${value}%'
+  			</when>
+  			<when test="condition == 'writer'">
+  				and nickname = #{value}
+  			</when>
+  		</choose>
+  	</if>
+  </select>
   
   
   
